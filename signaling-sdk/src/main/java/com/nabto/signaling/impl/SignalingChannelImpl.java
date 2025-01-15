@@ -17,4 +17,24 @@ public class SignalingChannelImpl implements SignalingChannel {
     public void setChannelState(SignalingChannelState channelState) {
         this.channelState = channelState;
     }
+
+    public void handleUnreliableMessage(String message) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handlePeerConnected() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handlePeerOffline() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handleError(String errorCode) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handleWebSocketReconnect() {
+        throw new UnsupportedOperationException();
+    }
 }

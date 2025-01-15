@@ -84,13 +84,14 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     private int pongCounter = 0;
     private boolean isConnected = false;
-    private final WebSocket ws;
+    private WebSocket ws;
     private final String name;
     private final WebSocketConnection.Observer observer;
 
     public WebSocketConnectionImpl(String name, String signalingUrl, WebSocketConnection.Observer observer) {
         this.name = name;
         this.observer = observer;
+
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
@@ -105,6 +106,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     @Override
     public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+        this.ws = webSocket;
         isConnected = true;
         observer.onOpen();
     }
@@ -176,5 +178,9 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
         logger.info(name + " sending websocket message " + msg);
         this.ws.send(msg);
+    }
+
+    public void close() {
+        throw new UnsupportedOperationException();
     }
 }
