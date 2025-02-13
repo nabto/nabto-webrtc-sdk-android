@@ -21,7 +21,7 @@ public class SignalingClientImpl implements SignalingClient {
     private String reconnectToken = null;
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
-    private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this);
+    private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this, "not_connected");
 
     public SignalingClientImpl(String endpointUrl, String productId, String deviceId) {
         this.endpointUrl = endpointUrl;
@@ -107,5 +107,9 @@ public class SignalingClientImpl implements SignalingClient {
                 webSocket.sendPing();
             }
         });
+    }
+
+    public void sendRoutingMessage(String channelId, String message) {
+        webSocket.sendMessage(channelId, message);
     }
 }

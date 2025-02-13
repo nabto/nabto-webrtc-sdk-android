@@ -1,5 +1,8 @@
 package com.nabto.signaling.impl;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ReliabilityMessage {
     public enum MessageType {
         ACK,
@@ -14,5 +17,21 @@ public class ReliabilityMessage {
         this.type = type;
         this.seq = seq;
         this.message = message;
+    }
+
+    public String toJsonString() {
+        try {
+            JSONObject json = new JSONObject();
+            if (this.type == MessageType.MESSAGE) {
+                json.put("type", "MESSAGE");
+                json.put("message", message);
+            } else {
+                json.put("type", "ACK");
+            }
+            json.put("seq", seq);
+            return json.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException("Should never happen");
+        }
     }
 }

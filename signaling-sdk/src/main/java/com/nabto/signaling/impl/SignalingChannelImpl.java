@@ -6,10 +6,15 @@ import com.nabto.signaling.SignalingClient;
 
 public class SignalingChannelImpl implements SignalingChannel {
     private SignalingChannelState channelState = SignalingChannelState.OFFLINE;
-    private SignalingClient signalingClient;
+    private Reliability reliabilityLayer;
+    private SignalingClientImpl signalingClient;
+    private String channelId;
 
-    public SignalingChannelImpl(SignalingClient signalingClient) {
+    public SignalingChannelImpl(SignalingClientImpl signalingClient, String channelId) {
         this.signalingClient = signalingClient;
+        this.channelId = channelId;
+
+        reliabilityLayer = new Reliability((msg) -> signalingClient.sendRoutingMessage(this.channelId, msg.toJsonString()));
     }
 
     @Override

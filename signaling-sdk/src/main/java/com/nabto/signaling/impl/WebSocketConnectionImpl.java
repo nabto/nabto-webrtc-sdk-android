@@ -199,9 +199,11 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 }
             }
 
-            ws.send(json.toString());
-        } catch (JSONException | NullPointerException e) {
-            logger.warning("Failedto send message due to " + e.getMessage());
+            if (ws != null) {
+                ws.send(json.toString());
+            }
+        } catch (JSONException e) {
+            logger.warning("Failed to send message due to " + e.getMessage());
         }
     }
 }
