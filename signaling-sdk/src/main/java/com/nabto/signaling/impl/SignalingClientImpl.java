@@ -5,7 +5,6 @@ import com.nabto.signaling.SignalingChannelState;
 import com.nabto.signaling.SignalingClient;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 public class SignalingClientImpl implements SignalingClient {
@@ -20,6 +19,7 @@ public class SignalingClientImpl implements SignalingClient {
     private String connectionId = null;
     private String reconnectToken = null;
 
+    private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
     private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl();
 
     public SignalingClientImpl(String endpointUrl, String productId, String deviceId) {
@@ -72,7 +72,35 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     private void openWebsocketConnection(String signalingUrl) {
-        // @TODO: Implementation
-        throw new UnsupportedOperationException();
+        webSocket.connect(signalingUrl, new WebSocketConnection.Observer() {
+            @Override
+            public void onMessage(String connectionId, String message, boolean authorized) {
+
+            }
+
+            @Override
+            public void onPeerConnected(String connectionId) {
+            }
+
+            @Override
+            public void onPeerOffline(String connectionId) {
+
+            }
+
+            @Override
+            public void onConnectionError(String connectionId, String errorCode) {
+
+            }
+
+            @Override
+            public void onCloseOrError(String reason) {
+
+            }
+
+            @Override
+            public void onOpen() {
+
+            }
+        });
     }
 }
