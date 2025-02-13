@@ -1,6 +1,4 @@
-package com.nabto.signaling.impl;
-
-import com.nabto.signaling.MessageSigner;
+package com.nabto.signaling;
 
 public class SharedSecretMessageSigner implements MessageSigner {
     private String sharedSecret;

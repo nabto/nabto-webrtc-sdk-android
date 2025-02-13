@@ -1,4 +1,6 @@
 package com.nabto.signaling;
 
-public class MessageSigner {
+public interface MessageSigner {
+    String signMessage(String message);
+    String verifyMessage(String token);
 }
