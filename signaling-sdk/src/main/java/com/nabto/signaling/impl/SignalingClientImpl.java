@@ -127,4 +127,8 @@ public class SignalingClientImpl implements SignalingClient {
     public void sendRoutingMessage(String channelId, String message) {
         webSocket.sendMessage(channelId, message);
     }
+
+    public void sendError(String channelId, String errorCode, String errorMessage) {
+        webSocket.sendError(channelId, errorCode); // @TODO: send errorMessage
+    }
 }

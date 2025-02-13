@@ -3,6 +3,8 @@ package com.nabto.signaling.impl;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 public class ReliabilityMessage {
     public enum MessageType {
         ACK,
@@ -32,6 +34,21 @@ public class ReliabilityMessage {
             return json.toString();
         } catch (JSONException e) {
             throw new RuntimeException("Should never happen");
+        }
+    }
+
+    public static ReliabilityMessage fromJson(String data) throws JSONException {
+        JSONObject json = new JSONObject(data);
+        var type = json.get("type");
+        if (Objects.equals(type, "ACK")) {
+            var seq = json.getInt("seq");
+            return new ReliabilityMessage(MessageType.ACK, seq, null);
+        } else if (Objects.equals(type, "MESSAGE")) {
+            var seq = json.getInt("seq");
+            var msg = json.getString("message");
+            return new ReliabilityMessage(MessageType.MESSAGE, seq, msg);
+        } else {
+            throw new JSONException("ReliabilityMessage type field was not ACK or MESSAGE");
         }
     }
 }
