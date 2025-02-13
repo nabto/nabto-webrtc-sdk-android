@@ -3,6 +3,7 @@ package com.nabto.signaling.impl;
 import com.nabto.signaling.SignalingChannel;
 import com.nabto.signaling.SignalingChannelState;
 import com.nabto.signaling.SignalingClient;
+import com.nabto.signaling.SignalingError;
 
 public class SignalingChannelImpl implements SignalingChannel {
     private SignalingChannelState channelState = SignalingChannelState.OFFLINE;
@@ -27,7 +28,7 @@ public class SignalingChannelImpl implements SignalingChannel {
 
     @Override
     public void sendMessage(String msg) {
-
+        reliabilityLayer.sendReliableMessage(msg);
     }
 
     @Override
@@ -37,5 +38,25 @@ public class SignalingChannelImpl implements SignalingChannel {
 
     public void setChannelState(SignalingChannelState channelState) {
         this.channelState = channelState;
+    }
+
+    public void handleRoutingMessage(String message) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handlePeerConnected() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handlePeerOffline() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handleError(SignalingError err) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void handleWebSocketConnect(boolean wasReconnected) {
+        throw new UnsupportedOperationException();
     }
 }

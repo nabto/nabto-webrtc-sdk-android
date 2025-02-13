@@ -3,6 +3,7 @@ package com.nabto.signaling.impl;
 import com.nabto.signaling.SignalingChannel;
 import com.nabto.signaling.SignalingChannelState;
 import com.nabto.signaling.SignalingClient;
+import com.nabto.signaling.SignalingError;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -19,6 +20,8 @@ public class SignalingClientImpl implements SignalingClient {
     private ConnectionState connectionState = ConnectionState.NOT_CONNECTED;
     private String connectionId = null;
     private String reconnectToken = null;
+    private int reconnectCounter = 0;
+    private int openedWebSockets = 0;
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
     private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this, "not_connected");
@@ -76,35 +79,47 @@ public class SignalingClientImpl implements SignalingClient {
         connectionState = ConnectionState.CLOSED;
     }
 
+    private void waitReconnect() {
+        // @TODO: implementation
+    }
+
     private void openWebsocketConnection(String signalingUrl) {
         webSocket.connect(signalingUrl, new WebSocketConnection.Observer() {
             @Override
             public void onMessage(String connectionId, String message, boolean authorized) {
-
+                signalingChannel.handleRoutingMessage(message);
             }
 
             @Override
             public void onPeerConnected(String connectionId) {
+                signalingChannel.handlePeerConnected();
             }
 
             @Override
             public void onPeerOffline(String connectionId) {
-
+                signalingChannel.handlePeerOffline();
             }
 
             @Override
             public void onConnectionError(String connectionId, String errorCode) {
-
+                var err = new SignalingError(errorCode, "", true); // @TODO: error message
+                signalingChannel.handleError(err);
             }
 
             @Override
-            public void onCloseOrError(String reason) {
-
+            public void onCloseOrError(String errorCode) {
+                waitReconnect();
             }
 
             @Override
             public void onOpen() {
+                // @TODO: remove this test ping
                 webSocket.sendPing();
+
+                reconnectCounter = 0;
+                openedWebSockets++;
+                signalingChannel.handleWebSocketConnect(openedWebSockets > 1);
+                connectionState = ConnectionState.CONNECTED;
             }
         });
     }
