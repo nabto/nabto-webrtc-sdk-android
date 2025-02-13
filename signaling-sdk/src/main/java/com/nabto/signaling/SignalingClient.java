@@ -35,4 +35,6 @@ public interface SignalingClient extends AutoCloseable {
      * @return {@link Future} that will be completed when the connection is established or an error occurs.
      */
     CompletableFuture<Void> connect(String accessToken);
+
+    // @TODO: conncetion state change callbacks?
 }

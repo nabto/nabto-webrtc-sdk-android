@@ -136,7 +136,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
         }
     }
 
-    private void sendPing() {
+    public void sendPing() {
         send(new RoutingMessage(
                 RoutingMessage.MessageType.PING,
                 null,

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 public class SignalingClientImpl implements SignalingClient {
     private final Logger logger = Logger.getLogger("SignalingClient");
+    private boolean closed = false;
 
     private final String endpointUrl;
     private final String productId;
@@ -20,7 +21,7 @@ public class SignalingClientImpl implements SignalingClient {
     private String reconnectToken = null;
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
-    private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl();
+    private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this);
 
     public SignalingClientImpl(String endpointUrl, String productId, String deviceId) {
         this.endpointUrl = endpointUrl;
@@ -68,7 +69,11 @@ public class SignalingClientImpl implements SignalingClient {
 
     @Override
     public void close() throws Exception {
-
+        if (closed) return;
+        closed = true;
+        signalingChannel.close();
+        webSocket.close();
+        connectionState = ConnectionState.CLOSED;
     }
 
     private void openWebsocketConnection(String signalingUrl) {
@@ -99,7 +104,7 @@ public class SignalingClientImpl implements SignalingClient {
 
             @Override
             public void onOpen() {
-
+                webSocket.sendPing();
             }
         });
     }

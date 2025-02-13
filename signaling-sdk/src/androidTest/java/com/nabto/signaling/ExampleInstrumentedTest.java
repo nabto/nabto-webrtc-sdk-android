@@ -40,9 +40,9 @@ public class ExampleInstrumentedTest {
     @Test
     public void testCreateSignalingClient() {
         var opts = new SignalingClientFactory.Options()
-                .setEndpointUrl("https://eu.webrtc.dev.nabto.net")
-                .setProductId("wp-wrvinm7e")
-                .setDeviceId("wd-kennic9i");
+                .setEndpointUrl("https://eu.webrtc.nabto.net")
+                .setProductId("wp-apy9i4ab")
+                .setDeviceId("wd-fxb4zxg7nyf7sf3w");
 
         try (var client = SignalingClientFactory.createSignalingClient(opts)) {
             var f = client.connect();
