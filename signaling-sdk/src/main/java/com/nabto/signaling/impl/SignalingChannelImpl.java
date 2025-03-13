@@ -8,14 +8,19 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
+    private final Logger logger = Logger.getLogger("SignalingChannel");
     private final List<String> receivedMessages = new ArrayList<>();
     private SignalingChannelState channelState = SignalingChannelState.OFFLINE;
     private final Reliability reliabilityLayer;
     private final SignalingClientImpl signalingClient;
-    private final String channelId;
+    private String channelId;
     private boolean closed = false;
+
+    // @TODO
+    private MessageListener listener = null;
 
     public SignalingChannelImpl(SignalingClientImpl signalingClient, String channelId) {
         this.signalingClient = signalingClient;
@@ -47,8 +52,17 @@ public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
         signalingClient.sendError(channelId, errorCode, errorMessage);
     }
 
+    @Override
+    public void addMessageListener(MessageListener listener) {
+        this.listener = listener;
+    }
+
     public void setChannelState(SignalingChannelState channelState) {
         this.channelState = channelState;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 
     public void handleRoutingMessage(String message) {
@@ -83,6 +97,10 @@ public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
     }
 
     private void handleReceivedMessages() {
-        // @TODO
+        // @TODO: validate this is correct
+        if (!receivedMessages.isEmpty()) {
+            var msg = receivedMessages.remove(0);
+            logger.info(msg);
+        }
     }
 }

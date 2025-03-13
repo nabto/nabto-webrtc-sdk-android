@@ -1,6 +1,7 @@
 package com.nabto.signaling;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -47,8 +48,21 @@ public class ExampleInstrumentedTest {
         try (var client = SignalingClientFactory.createSignalingClient(opts)) {
             var f = client.connect();
             f.get();
+            MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
+            var signed = signer.signMessage(new SignalingMessage("CREATE_REQUEST").toJson());
+            client.getSignalingChannel().sendMessage(signed);
+            Thread.sleep(3000);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void testSharedSecretSignMessage() {
+        MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
+        var input = "Hello World";
+        var signed = signer.signMessage(input);
+        var decoded = signer.verifyMessage(signed);
+        assertEquals(input, decoded);
     }
 }

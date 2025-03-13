@@ -1,5 +1,7 @@
 package com.nabto.signaling.impl;
 
+import android.util.Log;
+
 import com.nabto.signaling.SignalingChannel;
 import com.nabto.signaling.SignalingChannelState;
 import com.nabto.signaling.SignalingClient;
@@ -55,13 +57,16 @@ public class SignalingClientImpl implements SignalingClient {
         this.connectionState = ConnectionState.CONNECTING;
         backend.doClientConnect(accessToken).whenComplete((res, ex) -> {
             if (ex == null) {
-                this.connectionId = res.connectionId;
+                this.connectionId = res.channelId;
                 this.reconnectToken = res.reconnectToken;
+
+                signalingChannel.setChannelId(this.connectionId);
                 if (res.deviceOnline) {
                     signalingChannel.setChannelState(SignalingChannelState.ONLINE);
                 }
 
                 openWebsocketConnection(res.signalingUrl);
+                future.complete(null);
             } else {
                 future.completeExceptionally(ex);
             }

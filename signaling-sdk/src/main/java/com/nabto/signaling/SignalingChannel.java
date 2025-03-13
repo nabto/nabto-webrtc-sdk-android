@@ -4,6 +4,10 @@ package com.nabto.signaling;
  * @TODO: Documentation
  */
 public interface SignalingChannel extends AutoCloseable {
+    interface MessageListener {
+        void onMessage(String message);
+    }
+
     /**
      * Returns the current state of this signaling channel.
      * @return {@link SignalingChannelState}
@@ -22,6 +26,8 @@ public interface SignalingChannel extends AutoCloseable {
      * @param errorMessage A string message explaining the error
      */
     void sendError(String errorCode, String errorMessage);
+
+    void addMessageListener(MessageListener listener);
 
     // @TODO: checkAlive
     // @TODO: channelstatechange
