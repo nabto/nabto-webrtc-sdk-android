@@ -12,6 +12,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 import com.nabto.signaling.impl.Backend;
+import com.nabto.signaling.schema.SignalingCandidate;
+import com.nabto.signaling.schema.SignalingCreateRequest;
+import com.nabto.signaling.schema.SignalingDescription;
 
 import java.util.concurrent.ExecutionException;
 
@@ -49,7 +52,7 @@ public class ExampleInstrumentedTest {
             var f = client.connect();
             f.get();
             MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
-            var signed = signer.signMessage(new SignalingMessage("CREATE_REQUEST").toJson());
+            var signed = signer.signMessage(new SignalingCreateRequest().toJson());
             client.getSignalingChannel().sendMessage(signed);
             Thread.sleep(3000);
         } catch (Exception e) {
@@ -64,5 +67,11 @@ public class ExampleInstrumentedTest {
         var signed = signer.signMessage(input);
         var decoded = signer.verifyMessage(signed);
         assertEquals(input, decoded);
+    }
+
+    @Test
+    public void testMessageJsonConversion() {
+        var x = new SignalingCandidate("mycandidatething").withSdpMLineIndex(22);
+        Log.d("TEST", x.toJson());
     }
 }
