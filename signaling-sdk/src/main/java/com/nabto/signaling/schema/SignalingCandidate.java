@@ -11,6 +11,7 @@ public class SignalingCandidate implements SignalingMessage {
     public static class Candidate {
         public String candidate = "";
         @Nullable public String sdpMid = null;
+        // @TODO: Might be wrong to use the boxed Integer here?
         @Nullable public Integer sdpMLineIndex = null;
         @Nullable public String usernameFragment = null;
     }

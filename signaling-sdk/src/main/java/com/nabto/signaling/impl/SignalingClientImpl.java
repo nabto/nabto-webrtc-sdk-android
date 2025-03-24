@@ -5,8 +5,11 @@ import android.util.Log;
 import com.nabto.signaling.SignalingChannel;
 import com.nabto.signaling.SignalingChannelState;
 import com.nabto.signaling.SignalingClient;
+import com.nabto.signaling.SignalingConnectionState;
 import com.nabto.signaling.SignalingError;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -19,11 +22,12 @@ public class SignalingClientImpl implements SignalingClient {
     private final String deviceId;
     private final Backend backend;
 
-    private ConnectionState connectionState = ConnectionState.NOT_CONNECTED;
+    private SignalingConnectionState connectionState = SignalingConnectionState.NEW;
     private String connectionId = null;
     private String reconnectToken = null;
     private int reconnectCounter = 0;
     private int openedWebSockets = 0;
+    private List<SignalingClient.Observer> observers = new ArrayList<>();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
     private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this, "not_connected");
@@ -49,12 +53,12 @@ public class SignalingClientImpl implements SignalingClient {
     @Override
     public CompletableFuture<Void> connect(String accessToken) {
         var future = new CompletableFuture<Void>();
-        if (connectionState != ConnectionState.NOT_CONNECTED) {
+        if (connectionState != SignalingConnectionState.NEW) {
             future.completeExceptionally(new IllegalStateException("SignalingClientImpl.connect can only be called once!"));
             return future;
         }
 
-        this.connectionState = ConnectionState.CONNECTING;
+        setConnectionState(SignalingConnectionState.CONNECTING);
         backend.doClientConnect(accessToken).whenComplete((res, ex) -> {
             if (ex == null) {
                 this.connectionId = res.channelId;
@@ -76,12 +80,32 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
+    public SignalingConnectionState getConnectionState() {
+        return connectionState;
+    }
+
+    @Override
+    public void addObserver(Observer obs) {
+        observers.add(obs);
+    }
+
+    @Override
+    public void removeObserver(Observer obs) {
+        observers.remove(obs);
+    }
+
+    @Override
     public void close() throws Exception {
         if (closed) return;
         closed = true;
         signalingChannel.close();
         webSocket.close();
-        connectionState = ConnectionState.CLOSED;
+        setConnectionState(SignalingConnectionState.CLOSED);
+    }
+
+    private void setConnectionState(SignalingConnectionState state) {
+        this.connectionState = state;
+        observers.forEach(obs -> obs.onConnectionStateChange(this.connectionState));
     }
 
     private void waitReconnect() {
@@ -118,13 +142,10 @@ public class SignalingClientImpl implements SignalingClient {
 
             @Override
             public void onOpen() {
-                // @TODO: remove this test ping
-                webSocket.sendPing();
-
                 reconnectCounter = 0;
                 openedWebSockets++;
                 signalingChannel.handleWebSocketConnect(openedWebSockets > 1);
-                connectionState = ConnectionState.CONNECTED;
+                setConnectionState(SignalingConnectionState.CONNECTED);
             }
         });
     }

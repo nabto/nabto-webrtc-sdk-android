@@ -13,14 +13,15 @@ import java.util.logging.Logger;
 public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
     private final Logger logger = Logger.getLogger("SignalingChannel");
     private final List<String> receivedMessages = new ArrayList<>();
-    private SignalingChannelState channelState = SignalingChannelState.OFFLINE;
+    private SignalingChannelState channelState = SignalingChannelState.NEW;
     private final Reliability reliabilityLayer;
     private final SignalingClientImpl signalingClient;
     private String channelId;
     private boolean closed = false;
 
-    // @TODO
-    private MessageListener listener = null;
+    private boolean handlingReceivedMessages = false;
+
+    private final List<SignalingChannel.Observer> observers = new ArrayList<>();
 
     public SignalingChannelImpl(SignalingClientImpl signalingClient, String channelId) {
         this.signalingClient = signalingClient;
@@ -53,12 +54,23 @@ public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
     }
 
     @Override
-    public void addMessageListener(MessageListener listener) {
-        this.listener = listener;
+    public void checkAlive() {
+
+    }
+
+    @Override
+    public void addObserver(Observer obs) {
+        observers.add(obs);
+    }
+
+    @Override
+    public boolean removeObserver(Observer obs) {
+        return observers.remove(obs);
     }
 
     public void setChannelState(SignalingChannelState channelState) {
         this.channelState = channelState;
+        observers.forEach((obs) -> obs.onChannelStateChange(channelState));
     }
 
     public void setChannelId(String channelId) {
@@ -77,30 +89,44 @@ public class SignalingChannelImpl implements SignalingChannel, AutoCloseable {
     }
 
     public void handlePeerConnected() {
-        channelState = SignalingChannelState.ONLINE;
+        setChannelState(SignalingChannelState.ONLINE);
         reliabilityLayer.handlePeerConnected();
     }
 
     public void handlePeerOffline() {
-        channelState = SignalingChannelState.OFFLINE;
+        setChannelState(SignalingChannelState.OFFLINE);
     }
 
-    public void handleError(SignalingError err) {
-        // @TODO: Emit to a callback?
+    public void handleError(SignalingError error) {
+        if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
+            return;
+        }
+        observers.forEach((obs) -> obs.onSignalingError(error));
     }
 
     public void handleWebSocketConnect(boolean wasReconnected) {
+        if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
+            return;
+        }
         reliabilityLayer.handleConnect();
         if (wasReconnected) {
-            // @TODO: Emit to a reconnect callback?
+            observers.forEach(Observer::onSignalingReconnect);
         }
     }
 
     private void handleReceivedMessages() {
         // @TODO: validate this is correct
-        if (!receivedMessages.isEmpty()) {
-            var msg = receivedMessages.remove(0);
-            logger.info(msg);
+        if (!handlingReceivedMessages)
+        {
+            if (!receivedMessages.isEmpty()) {
+                handlingReceivedMessages = true;
+                var msg = receivedMessages.remove(0);
+                if (msg != null) {
+                    observers.forEach(obs -> obs.onMessage(msg));
+                }
+                handlingReceivedMessages = false;
+                handleReceivedMessages();
+            }
         }
     }
 }
