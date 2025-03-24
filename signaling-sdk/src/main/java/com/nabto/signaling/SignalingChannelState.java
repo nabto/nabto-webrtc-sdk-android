@@ -1,6 +1,9 @@
 package com.nabto.signaling;
 
 public enum SignalingChannelState {
+    NEW,
     ONLINE,
-    OFFLINE
+    OFFLINE,
+    FAILED,
+    CLOSED
 }

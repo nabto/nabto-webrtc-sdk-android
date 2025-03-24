@@ -1,11 +1,11 @@
 package com.nabto.signaling.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.squareup.moshi.Moshi;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -17,170 +17,193 @@ import okhttp3.WebSocketListener;
 import okio.ByteString;
 
 public class WebSocketConnectionImpl extends WebSocketListener implements WebSocketConnection {
-    private final Logger logger = Logger.getLogger("WebSocketConnection");
-    private final Moshi moshi = new Moshi.Builder().build();
+    private final Logger logger = Logger.getLogger("SignalingClient");
 
-    static class Message {
-        public final String type = "MESSAGE";
-        public String connectionId = "";
-        public String message = "";
-        public Boolean authorized = null;
-
-        public Message(String connectionId, String message, Boolean authorized) {
-            this.connectionId = connectionId;
-            this.message = message;
-            this.authorized = authorized;
-        }
-
-        @SuppressWarnings("unused")
-        public Message() { }
-    }
-
-    static class MessagePeerConnected {
-        public final String type = "PEER_CONNECTED";
-        public String connectionId = "";
-
-        public MessagePeerConnected(String connectionId) {
-            this.connectionId = connectionId;
-        }
-
-        @SuppressWarnings("unused")
-        public MessagePeerConnected() { }
-    }
-
-    static class MessagePeerOffline {
-        public final String type = "PEER_OFFLINE";
-        public String connectionId = "";
-
-        public MessagePeerOffline(String connectionId) {
-            this.connectionId = connectionId;
-        }
-
-        @SuppressWarnings("unused")
-        public MessagePeerOffline() { }
-    }
-
-    static class MessageError {
-        public final String type = "ERROR";
-        public String connectionId = "";
-        public String errorCode = "";
-
-        public MessageError(String connectionId, String errorCode) {
-            this.connectionId = connectionId;
-            this.errorCode = errorCode;
-        }
-
-        @SuppressWarnings("unused")
-        public MessageError() { }
-    }
-
-    static class MessagePing {
-        final String type = "PING";
-    }
-
-    static class MessagePong {
-        final String type = "PONG";
-    }
-
-    private int pongCounter = 0;
     private boolean isConnected = false;
-    private WebSocket ws;
-    private final String name;
-    private final WebSocketConnection.Observer observer;
+    private int pongCounter = 0;
+    private WebSocket ws = null;
+    Observer observer;
 
-    public WebSocketConnectionImpl(String name, String signalingUrl, WebSocketConnection.Observer observer) {
-        this.name = name;
+    @Override
+    public void connect(String endpoint, Observer observer) {
         this.observer = observer;
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(0, TimeUnit.MILLISECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(signalingUrl)
-                .build();
-
-        this.ws = client.newWebSocket(request, this);
+        OkHttpClient client = new OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS).build();
+        Request request = new Request.Builder().url(endpoint).build();
+        ws = client.newWebSocket(request, this);
         client.dispatcher().executorService().shutdown();
     }
 
     @Override
+    public void sendMessage(String channelId, String message) {
+        send(new RoutingMessage(
+                RoutingMessage.MessageType.MESSAGE,
+                channelId,
+                message,
+                false,
+                null,
+                null
+        ));
+    }
+
+    @Override
+    public void sendError(String channelId, String errorCode) {
+        send(new RoutingMessage(
+                RoutingMessage.MessageType.ERROR,
+                channelId,
+                null,
+                false,
+                errorCode,
+                "JAVA_UNIMPLEMENTED" // @TODO
+        ));
+    }
+
+    @Override
+    public void checkAlive(int timeout) {
+        // @TODO: Implementation
+    }
+
+    @Override
     public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
-        this.ws = webSocket;
+        super.onOpen(webSocket, response);
         isConnected = true;
         observer.onOpen();
     }
 
     @Override
-    public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
-        observer.onCloseOrError("closed");
-    }
-
-    @Override
-    public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
-        observer.onCloseOrError("error");
-    }
-
-    @Override
     public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
-        logger.info(name + " received websocket message\n" + text);
-        // @TODO
+        super.onMessage(webSocket, text);
+        logger.info("Received message " + text);
+        try {
+            JSONObject json = new JSONObject(text);
+            var type = json.getString("type");
+            if (Objects.equals(type, "MESSAGE")) {
+                var channelId = json.getString("channelId");
+                var msg = json.getString("message");
+                var authorized = json.optBoolean("authorized", false);
+                observer.onMessage(channelId, msg, authorized);
+            }
+
+            if (Objects.equals(type, "ERROR")) {
+                var channelId = json.getString("channelId");
+                var errorCode = json.getString("errorCode");
+                observer.onConnectionError(channelId, errorCode);
+            }
+
+            if (Objects.equals(type, "PEER_CONNECTED")) {
+                var channelId = json.getString("channelId");
+                observer.onPeerConnected(channelId);
+            }
+
+            if (Objects.equals(type, "PEER_OFFLINE")) {
+                var channelId = json.getString("channelId");
+                observer.onPeerOffline(channelId);
+            }
+
+            if (Objects.equals(type, "PING")) {
+                sendPong();
+            }
+
+            if (Objects.equals(type, "PONG")) {
+                pongCounter++;
+            }
+        } catch (JSONException e) {
+            logger.warning("Cannot parse message as json.");
+        }
     }
 
     @Override
     public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
-        logger.info(name + " received a byte message of length " + bytes.size());
-        // ignored
+        super.onMessage(webSocket, bytes);
+        logger.warning("Received unexpected binary message.");
     }
 
     @Override
-    public void sendMessage(String connectionId, String message) {
-        Message msg = new Message(connectionId, message, null);
-        var adapter = moshi.adapter(Message.class);
-        this.send(adapter.toJson(msg));
+    public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+        super.onClosing(webSocket, code, reason);
+        webSocket.close(1000, null);
+        logger.info("Closing websocket...");
     }
 
     @Override
-    public void sendError(String connectionId, String errorCode) {
-        MessageError err = new MessageError(connectionId, errorCode);
-        var adapter = moshi.adapter(MessageError.class);
-        this.send(adapter.toJson(err));
-    }
-
-    private void sendPing() {
-        MessagePing msg = new MessagePing();
-        var adapter = moshi.adapter(MessagePing.class);
-        this.send(adapter.toJson(msg));
-    }
-
-    private void sendPong() {
-        MessagePong msg = new MessagePong();
-        var adapter = moshi.adapter(MessagePong.class);
-        this.send(adapter.toJson(msg));
-    }
-
-    @Override
-    public void checkAlive(int timeout) {
-        var lastPongCounter = pongCounter;
-        sendPing();
-        new android.os.Handler().postDelayed(() -> {
-            if (lastPongCounter == pongCounter) {
-                observer.onCloseOrError("ping timeout");
-            }
-        }, timeout);
-    }
-
-    private void send(String msg) {
-        if (!isConnected) {
-            logger.info(name + " attempted to send a message before being connected. The message will be discarded.");
-            return;
-        }
-
-        logger.info(name + " sending websocket message " + msg);
-        this.ws.send(msg);
+    public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+        super.onClosed(webSocket, code, reason);
+        observer.onCloseOrError("closed");
     }
 
     public void close() {
-        throw new UnsupportedOperationException();
+        if (ws != null) {
+            ws.close(1000, null);
+        }
+    }
+
+    public void sendPing() {
+        send(new RoutingMessage(
+                RoutingMessage.MessageType.PING,
+                null,
+                null,
+                false,
+                null,
+                null
+        ));
+    }
+
+    private void sendPong() {
+        send(new RoutingMessage(
+                RoutingMessage.MessageType.PONG,
+                null,
+                null,
+                false,
+                null,
+                null
+        ));
+    }
+
+    private void send(RoutingMessage msg) {
+        if (!isConnected) {
+            return;
+        }
+
+        try {
+            JSONObject json = new JSONObject();
+            switch (msg.type) {
+                case MESSAGE: {
+                    json.put("type", "MESSAGE");
+                    json.put("channelId", msg.channelId);
+                    json.put("message", msg.message);
+                    break;
+                }
+
+                case ERROR: {
+                    json.put("type", "ERROR");
+                    json.put("channelId", msg.channelId);
+                    json.put("errorCode", msg.errorCode);
+                    if (msg.errorMessage != null) {
+                        json.put("errorMessage", msg.errorMessage);
+                    }
+                    break;
+                }
+
+                case PING: {
+                    json.put("type", "PING");
+                    break;
+                }
+
+                case PONG: {
+                    json.put("type", "PONG");
+                    break;
+                }
+
+                default: {
+                    logger.warning("Tried to send unimplemented message in WebSocketConnectionImpl");
+                    return;
+                }
+            }
+
+            if (ws != null) {
+                ws.send(json.toString());
+            }
+        } catch (JSONException e) {
+            logger.warning("Failed to send message due to " + e.getMessage());
+        }
     }
 }

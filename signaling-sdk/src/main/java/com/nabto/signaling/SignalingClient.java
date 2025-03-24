@@ -9,12 +9,8 @@ import java.util.concurrent.Future;
  * the Nabto Signaling Service for WebRTC.
  */
 public interface SignalingClient extends AutoCloseable {
-    enum ConnectionState {
-        NOT_CONNECTED,
-        CONNECTING,
-        CONNECTED,
-        WAIT_RETRY,
-        CLOSED
+    interface Observer {
+        void onConnectionStateChange(SignalingConnectionState newState);
     }
 
     /**
@@ -35,4 +31,13 @@ public interface SignalingClient extends AutoCloseable {
      * @return {@link Future} that will be completed when the connection is established or an error occurs.
      */
     CompletableFuture<Void> connect(String accessToken);
+
+    // @TODO: conncetion state change callbacks?
+
+    /**
+     * @TODO: documentation
+     */
+    SignalingConnectionState getConnectionState();
+    void addObserver(Observer obs);
+    void removeObserver(Observer obs);
 }

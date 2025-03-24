@@ -45,7 +45,7 @@ public class Backend {
     public static class ClientConnectResponse {
         public String signalingUrl;
         public boolean deviceOnline;
-        public String connectionId;
+        public String channelId;
         public String reconnectToken;
     }
 
@@ -123,7 +123,8 @@ public class Backend {
                         future.completeExceptionally(new ResponseException(response.code(), response.message()));
                     } else {
                         var adapter = moshi.adapter(ClientConnectResponse.class);
-                        ClientConnectResponse clientInfo = adapter.fromJson(responseBody.string());
+                        var respString = responseBody.string();
+                        ClientConnectResponse clientInfo = adapter.fromJson(respString);
                         future.complete(clientInfo);
                     }
                 }

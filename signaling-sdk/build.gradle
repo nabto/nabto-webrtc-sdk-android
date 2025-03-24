@@ -28,8 +28,11 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.material
-    implementation(libs.okhttp)
-    implementation(libs.moshi)
+    implementation libs.okhttp
+    implementation libs.moshi
+    implementation libs.jose4j
+    runtimeOnly libs.jjwt.jackson
+
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

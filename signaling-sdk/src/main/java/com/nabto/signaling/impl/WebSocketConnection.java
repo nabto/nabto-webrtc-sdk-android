@@ -24,7 +24,7 @@ public interface WebSocketConnection {
         void onPeerConnected(String connectionId);
 
         /**
-         * Invoked if it is detected that the remote peer is offline.
+         * Invoked when it has been detected that the remote peer has gone offline.
          * @param connectionId @TODO
          */
         void onPeerOffline(String connectionId);
@@ -47,6 +47,8 @@ public interface WebSocketConnection {
          */
         void onOpen();
     }
+
+    void connect(String endpoint, Observer observer);
 
     /**
      * Send a message to the remote peer.
