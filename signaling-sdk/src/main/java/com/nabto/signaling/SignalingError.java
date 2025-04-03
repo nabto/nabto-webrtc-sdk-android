@@ -1,16 +1,46 @@
 package com.nabto.signaling;
 
+/**
+ * Class representing an error occurring on a Signaling channel
+ */
 public class SignalingError extends RuntimeException {
+    /**
+     * The SDK received a message with invalid JSON or a JSON object not following the protocol
+     */
     public static final String DECODE_ERROR = "DECODE_ERROR";
+    /**
+     * A signed message was received, but the signature could not be verified.
+     */
     public static final String VERIFICATION_ERROR = "VERIFICATION_ERROR";
+    /**
+     * This error is received from the other peer when it is closing the Signaling Channel.
+     */
     public static final String CHANNEL_CLOSED = "CHANNEL_CLOSED";
+    /**
+     * This error is sent to the SignalingClient by the SignalingDevice if the client is using an unknown Channel ID.
+     */
     public static final String CHANNEL_NOT_FOUND = "CHANNEL_NOT_FOUND";
+    /**
+     * This can be sent by the device if a client attempts to create a new channel but the device has reached its limit.
+     */
     public static final String NO_MORE_CHANNELS = "NO_MORE_CHANNELS";
 
+    /**
+     * The code of the error. If the error is NOT remote, the code will be one of the predefined error codes. If the error IS remote, this can be any string.
+     */
     public String errorCode;
+
+    /**
+     * Optional error message describing the error.
+     */
     public String errorMessage;
+
+    /**
+     * Boolean indicating if this error was generated locally by the SDK or received from the remote peer.
+     */
     public boolean isRemote;
 
+    // Constructors should not be called by the user.
     public SignalingError(String errorCode, String errorMessage, boolean isRemote) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;

@@ -9,7 +9,14 @@ import java.util.concurrent.Future;
  * the Nabto Signaling Service for WebRTC.
  */
 public interface SignalingClient extends AutoCloseable {
+    /**
+     * Observer interface for callbacks
+     */
     interface Observer {
+        /**
+         * Callback invoked when the connection state changes
+         * @param newState The new connection state
+         */
         void onConnectionStateChange(SignalingConnectionState newState);
     }
 
@@ -35,9 +42,20 @@ public interface SignalingClient extends AutoCloseable {
     // @TODO: conncetion state change callbacks?
 
     /**
-     * @TODO: documentation
+     * Get the current state of the Signaling Connection
+     * @return The current state of the connection
      */
     SignalingConnectionState getConnectionState();
+
+    /**
+     * Add an observer to this signaling client.
+     * @param obs The observer.
+     */
     void addObserver(Observer obs);
+
+    /**
+     * Remove an observer from this signaling client.
+     * @param obs The observer to be removed.
+     */
     void removeObserver(Observer obs);
 }
