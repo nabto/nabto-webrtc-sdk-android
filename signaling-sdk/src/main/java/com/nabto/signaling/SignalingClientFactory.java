@@ -47,7 +47,7 @@ public class SignalingClientFactory {
 
     /**
      * Create a {@link SignalingClient} that can connect to a device over the signaling service.
-     * @param opts A {@link Options} object.
+     * @param opts An {@link Options} object.
      * @return An implementation of {@link SignalingClient}.
      */
     public static SignalingClient createSignalingClient(Options opts) {
