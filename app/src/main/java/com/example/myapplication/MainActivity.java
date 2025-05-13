@@ -9,17 +9,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.nabto.signaling.MessageDecoder;
-import com.nabto.signaling.MessageSigner;
-import com.nabto.signaling.SharedSecretMessageSigner;
-import com.nabto.signaling.SignalingChannel;
-import com.nabto.signaling.SignalingChannelState;
-import com.nabto.signaling.SignalingClient;
-import com.nabto.signaling.SignalingClientFactory;
-import com.nabto.signaling.SignalingError;
-import com.nabto.signaling.schema.SignalingCandidate;
-import com.nabto.signaling.schema.SignalingCreateRequest;
-import com.nabto.signaling.schema.SignalingDescription;
+import com.nabto.webrtc.util.MessageSigner;
+import com.nabto.webrtc.util.SharedSecretMessageSigner;
+import com.nabto.webrtc.SignalingChannel;
+import com.nabto.webrtc.SignalingChannelState;
+import com.nabto.webrtc.SignalingClient;
+import com.nabto.webrtc.SignalingClientFactory;
+import com.nabto.webrtc.SignalingError;
+import com.nabto.webrtc.util.SignalingCandidate;
+import com.nabto.webrtc.util.SignalingCreateRequest;
+import com.nabto.webrtc.util.SignalingDescription;
+import com.nabto.webrtc.util.SignalingMessageUnion;
 
 import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements
     final String endpointUrl = "https://eu.webrtc.nabto.net";
     final String productId = "wp-apy9i4ab";
     final String deviceId = "wd-fxb4zxg7nyf7sf3w";
+    final String sharedSecret = "MySecret";
 
     // Webrtc
     PeerConnectionFactory peerConnectionFactory = null;
@@ -63,8 +64,7 @@ public class MainActivity extends AppCompatActivity implements
     boolean ignoreOffer = false;
 
     // Nabto signaling
-    MessageDecoder decoder = new MessageDecoder();
-    MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
+    MessageSigner signer = new SharedSecretMessageSigner(sharedSecret, "default");
     SignalingClient client;
 
     private void initPeerConnectionFactory() {
@@ -293,8 +293,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMessage(String message) {
         try {
+            // verify and decode message
             var verified = signer.verifyMessage(message);
-            var msg = decoder.decodeMessage(verified);
+            var msg = SignalingMessageUnion.fromJson(verified);
 
             if (msg.isDescription()) {
                 setRemoteDescription(msg.getDescription().description);

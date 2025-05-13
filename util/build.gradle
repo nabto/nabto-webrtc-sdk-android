@@ -1,19 +1,16 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
 }
 
 android {
-    namespace 'com.example.myapplication'
+    namespace 'com.nabto.webrtc.util'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.example.myapplication"
         minSdk 26
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -29,14 +26,14 @@ android {
 }
 
 dependencies {
+
     implementation libs.appcompat
     implementation libs.material
-    implementation libs.activity
-    implementation libs.constraintlayout
+    implementation libs.moshi
+    implementation libs.jose4j
     implementation project(':core')
-    implementation project(':util')
-    implementation libs.stream.webrtc.android
-    implementation libs.stream.webrtc.android.ui
+    runtimeOnly libs.jjwt.jackson
+
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
