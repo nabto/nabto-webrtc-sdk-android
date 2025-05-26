@@ -1,10 +1,12 @@
 package com.nabto.webrtc.impl;
 
-import com.nabto.webrtc.SignalingChannel;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingConnectionState;
 import com.nabto.webrtc.SignalingError;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,12 @@ public class SignalingClientImpl implements SignalingClient {
     private final boolean requireOnline;
     private final Backend backend;
 
+    private final List<JSONObject> receivedMessages = new ArrayList<>();
+    private SignalingChannelState channelState = SignalingChannelState.NEW;
+    private Reliability reliabilityLayer;
+
+    private boolean handlingReceivedMessages = false;
+
     private SignalingConnectionState connectionState = SignalingConnectionState.NEW;
     private String connectionId = null;
     private String reconnectToken = null;
@@ -29,7 +37,6 @@ public class SignalingClientImpl implements SignalingClient {
     private List<SignalingClient.Observer> observers = new ArrayList<>();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
-    private final SignalingChannelImpl signalingChannel = new SignalingChannelImpl(this, "not_connected");
 
     public SignalingClientImpl(String endpointUrl, String productId, String deviceId, boolean requireOnline) {
         if (productId.isEmpty() || deviceId.isEmpty()) {
@@ -45,12 +52,8 @@ public class SignalingClientImpl implements SignalingClient {
         this.deviceId = deviceId;
         this.requireOnline = requireOnline;
 
+        reliabilityLayer = new Reliability((msg) -> this.sendRoutingMessage(msg.toJsonString()));
         backend = new Backend(endpointUrl, productId, deviceId);
-    }
-
-    @Override
-    public SignalingChannel getSignalingChannel() {
-        return signalingChannel;
     }
 
     @Override
@@ -72,11 +75,10 @@ public class SignalingClientImpl implements SignalingClient {
                 this.connectionId = res.channelId;
                 this.reconnectToken = res.reconnectToken;
 
-                signalingChannel.setChannelId(this.connectionId);
                 if (res.deviceOnline) {
-                    signalingChannel.setChannelState(SignalingChannelState.ONLINE);
+                    setChannelState(SignalingChannelState.ONLINE);
                 } else {
-                    signalingChannel.setChannelState(SignalingChannelState.OFFLINE);
+                    setChannelState(SignalingChannelState.OFFLINE);
                     if (this.requireOnline) {
                         future.completeExceptionally(new RuntimeException("The requested device is not online."));
                         return;
@@ -99,6 +101,26 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
+    public SignalingChannelState getChannelState() {
+        return channelState;
+    }
+
+    @Override
+    public void sendMessage(JSONObject msg) {
+        reliabilityLayer.sendReliableMessage(msg);
+    }
+
+    @Override
+    public void sendError(String errorCode, String errorMessage) {
+        sendError(connectionId, errorCode, errorMessage);
+    }
+
+    @Override
+    public void checkAlive() {
+
+    }
+
+    @Override
     public void addObserver(Observer obs) {
         observers.add(obs);
     }
@@ -112,14 +134,19 @@ public class SignalingClientImpl implements SignalingClient {
     public void close() throws Exception {
         if (closed) return;
         closed = true;
-        signalingChannel.close();
         webSocket.close();
         setConnectionState(SignalingConnectionState.CLOSED);
+        setChannelState(SignalingChannelState.OFFLINE);
     }
 
     private void setConnectionState(SignalingConnectionState state) {
         this.connectionState = state;
         observers.forEach(obs -> obs.onConnectionStateChange(this.connectionState));
+    }
+
+    public void setChannelState(SignalingChannelState channelState) {
+        this.channelState = channelState;
+        observers.forEach((obs) -> obs.onChannelStateChange(channelState));
     }
 
     private void waitReconnect() {
@@ -130,23 +157,23 @@ public class SignalingClientImpl implements SignalingClient {
         webSocket.connect(signalingUrl, new WebSocketConnection.Observer() {
             @Override
             public void onMessage(String connectionId, String message, boolean authorized) {
-                signalingChannel.handleRoutingMessage(message);
+                handleRoutingMessage(message);
             }
 
             @Override
             public void onPeerConnected(String connectionId) {
-                signalingChannel.handlePeerConnected();
+                handlePeerConnected();
             }
 
             @Override
             public void onPeerOffline(String connectionId) {
-                signalingChannel.handlePeerOffline();
+                handlePeerOffline();
             }
 
             @Override
             public void onConnectionError(String connectionId, String errorCode) {
                 var err = new SignalingError(errorCode, "", true); // @TODO: error message
-                signalingChannel.handleError(err);
+                handleError(err);
             }
 
             @Override
@@ -158,14 +185,71 @@ public class SignalingClientImpl implements SignalingClient {
             public void onOpen() {
                 reconnectCounter = 0;
                 openedWebSockets++;
-                signalingChannel.handleWebSocketConnect(openedWebSockets > 1);
+                handleWebSocketConnect(openedWebSockets > 1);
                 setConnectionState(SignalingConnectionState.CONNECTED);
             }
         });
     }
 
-    public void sendRoutingMessage(String channelId, String message) {
-        webSocket.sendMessage(channelId, message);
+    // -------------------------------------------------------------
+    // Websocket handler functions
+    // -------------------------------------------------------------
+
+    public void handleRoutingMessage(String message) {
+        try {
+            var parsed = ReliabilityMessage.fromJson(message);
+            var reliableMessage = reliabilityLayer.handleRoutingMessage(parsed);
+            receivedMessages.add(reliableMessage);
+            handleReceivedMessages();
+        } catch (JSONException e) {
+            // @TODO: Logging
+        }
+    }
+
+    public void handlePeerConnected() {
+        setChannelState(SignalingChannelState.ONLINE);
+        reliabilityLayer.handlePeerConnected();
+    }
+
+    public void handlePeerOffline() {
+        setChannelState(SignalingChannelState.OFFLINE);
+    }
+
+    public void handleError(SignalingError error) {
+        if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
+            return;
+        }
+        observers.forEach((obs) -> obs.onError(error));
+    }
+
+    public void handleWebSocketConnect(boolean wasReconnected) {
+        if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
+            return;
+        }
+        reliabilityLayer.handleConnect();
+        if (wasReconnected) {
+            observers.forEach(SignalingClient.Observer::onConnectionReconnect);
+        }
+    }
+
+    private void handleReceivedMessages() {
+        // @TODO: validate this is correct
+        if (!handlingReceivedMessages)
+        {
+            if (!receivedMessages.isEmpty()) {
+                handlingReceivedMessages = true;
+                var msg = receivedMessages.remove(0);
+                if (msg != null) {
+                    observers.forEach(obs -> obs.onMessage(msg));
+                }
+                handlingReceivedMessages = false;
+                handleReceivedMessages();
+            }
+        }
+    }
+
+    public void sendRoutingMessage(String message) {
+        webSocket.sendMessage(this.connectionId, message);
     }
 
     public void sendError(String channelId, String errorCode, String errorMessage) {

@@ -1,5 +1,8 @@
 package com.nabto.webrtc.util;
 
+import org.json.JSONObject;
+
 public interface SignalingMessage {
-    String toJson();
+    JSONObject toJson();
+    String toJsonString();
 }

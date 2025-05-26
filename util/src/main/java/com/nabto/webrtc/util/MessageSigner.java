@@ -1,6 +1,8 @@
 package com.nabto.webrtc.util;
 
+import org.json.JSONObject;
+
 public interface MessageSigner {
-    String signMessage(String message);
-    String verifyMessage(String token);
+    JSONObject signMessage(JSONObject message);
+    JSONObject verifyMessage(JSONObject token);
 }

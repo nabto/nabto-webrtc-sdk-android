@@ -9,15 +9,15 @@ import java.io.IOException;
 
 public class SignalingMessageUnion {
     private SignalingCandidate candidate = null;
-    private SignalingCreateRequest createRequest = null;
-    private SignalingCreateResponse createResponse = null;
+    private SignalingSetupRequest createRequest = null;
+    private SignalingSetupResponse createResponse = null;
     private SignalingDescription description = null;
 
-    public static SignalingMessageUnion fromJson(String message) throws IOException {
+    public static SignalingMessageUnion fromJson(JSONObject json) throws IOException {
         SignalingMessageUnion result = new SignalingMessageUnion();
+        var message = json.toString();
         String type = "";
         try {
-            JSONObject json = new JSONObject(message);
             type = json.getString("type");
         } catch (JSONException e) {
             throw new IOException(e);
@@ -30,11 +30,11 @@ public class SignalingMessageUnion {
             case SignalingMessageType.DESCRIPTION:
                 result.setDescription(JsonUtil.fromJson(SignalingDescription.class, message));
                 break;
-            case SignalingMessageType.CREATE_REQUEST:
-                result.setCreateRequest(JsonUtil.fromJson(SignalingCreateRequest.class, message));
+            case SignalingMessageType.SETUP_REQUEST:
+                result.setSetupRequest(JsonUtil.fromJson(SignalingSetupRequest.class, message));
                 break;
-            case SignalingMessageType.CREATE_RESPONSE:
-                result.setCreateResponse(JsonUtil.fromJson(SignalingCreateResponse.class, message));
+            case SignalingMessageType.SETUP_RESPONSE:
+                result.setSetupResponse(JsonUtil.fromJson(SignalingSetupResponse.class, message));
                 break;
             default:
                 throw new IOException("DefaultMessageEncoder::decodeMessage input argument is invalid! " + message + " is not a valid signaling message.");
@@ -63,11 +63,11 @@ public class SignalingMessageUnion {
         return candidate;
     }
 
-    public SignalingCreateRequest getCreateRequest() {
+    public SignalingSetupRequest getCreateRequest() {
         return createRequest;
     }
 
-    public SignalingCreateResponse getCreateResponse() {
+    public SignalingSetupResponse getCreateResponse() {
         return createResponse;
     }
 
@@ -79,11 +79,11 @@ public class SignalingMessageUnion {
         this.candidate = candidate;
     }
 
-    public void setCreateRequest(@NonNull SignalingCreateRequest createRequest) {
+    public void setSetupRequest(@NonNull SignalingSetupRequest createRequest) {
         this.createRequest = createRequest;
     }
 
-    public void setCreateResponse(@NonNull SignalingCreateResponse createResponse) {
+    public void setSetupResponse(@NonNull SignalingSetupResponse createResponse) {
         this.createResponse = createResponse;
     }
 

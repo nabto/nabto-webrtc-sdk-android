@@ -55,6 +55,8 @@ public class SignalingClientFactory {
      * Create a {@link SignalingClient} that can connect to a device over the signaling service.
      * @param opts An {@link Options} object.
      * @return An implementation of {@link SignalingClient}.
+     *
+     * @TODO: add accessToken to Options object
      */
     public static SignalingClient createSignalingClient(Options opts) {
         return new SignalingClientImpl(opts.endpointUrl, opts.productId, opts.deviceId, opts.requireOnline);

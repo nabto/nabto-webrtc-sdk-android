@@ -13,9 +13,12 @@ public class ReliabilityMessage {
 
     public MessageType type;
     public int seq;
-    public String message;
 
-    public ReliabilityMessage(MessageType type, int seq, String message) {
+    // @TODO: message should now be a jsonobject
+    // @TODO: change "message" to "data"
+    public JSONObject message;
+
+    public ReliabilityMessage(MessageType type, int seq, JSONObject message) {
         this.type = type;
         this.seq = seq;
         this.message = message;
@@ -45,7 +48,7 @@ public class ReliabilityMessage {
             return new ReliabilityMessage(MessageType.ACK, seq, null);
         } else if (Objects.equals(type, "MESSAGE")) {
             var seq = json.getInt("seq");
-            var msg = json.getString("message");
+            var msg = json.getJSONObject("message");
             return new ReliabilityMessage(MessageType.MESSAGE, seq, msg);
         } else {
             throw new JSONException("ReliabilityMessage type field was not ACK or MESSAGE");

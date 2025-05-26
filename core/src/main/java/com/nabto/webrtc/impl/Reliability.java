@@ -1,5 +1,7 @@
 package com.nabto.webrtc.impl;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -8,6 +10,8 @@ public class Reliability {
     public interface RoutingMessageSender {
         void sendRoutingMessage(ReliabilityMessage message);
     }
+
+    // @TODO: Rename "messages" to "data"
 
     private final Logger logger = Logger.getLogger("ReliabilityLayer");
     private final List<ReliabilityMessage> unackedMessages = new ArrayList<>();
@@ -23,7 +27,7 @@ public class Reliability {
      * Send a reliable message
      * @param message The message to send
      */
-    public void sendReliableMessage(String message) {
+    public void sendReliableMessage(JSONObject message) {
         var encoded = new ReliabilityMessage(
                 ReliabilityMessage.MessageType.MESSAGE,
                 sendSeq,
@@ -39,7 +43,7 @@ public class Reliability {
      * @param message
      * @return
      */
-    public String handleRoutingMessage(ReliabilityMessage message) {
+    public JSONObject handleRoutingMessage(ReliabilityMessage message) {
         if (message.type == ReliabilityMessage.MessageType.ACK) {
             handleAck(message);
             return null;
@@ -48,7 +52,7 @@ public class Reliability {
         }
     }
 
-    private String handleReliabilityMessage(ReliabilityMessage message) {
+    private JSONObject handleReliabilityMessage(ReliabilityMessage message) {
         if (message.seq <= recvSeq) {
             // Message was expected or retransmitted.
             sendAck(message.seq);

@@ -1,5 +1,7 @@
 package com.nabto.webrtc.util;
 
+import androidx.annotation.Nullable;
+
 import com.nabto.webrtc.SignalingError;
 
 import org.jose4j.jwa.AlgorithmConstraints;
@@ -11,27 +13,42 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.keys.HmacKey;
 import org.jose4j.lang.JoseException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.security.Key;
+import java.util.UUID;
 
-public class SharedSecretMessageSigner implements MessageSigner {
+// @TODO: Rename to JWTMessageSigner
+// Look at typescript to compare
+public class JWTMessageSigner implements MessageSigner {
     private final Key key;
     private final String keyId;
-    private int signSeq = 0;
 
-    public SharedSecretMessageSigner(String sharedSecret, String keyId) {
+    private int nextMessageSignSeq = 0;
+    private int nextMessageVerifySeq = 0;
+    private String nonce = UUID.randomUUID().toString();
+    @Nullable private String remoteNonce = null;
+
+    public JWTMessageSigner(String sharedSecret, String keyId) {
         this.key = new HmacKey(sharedSecret.getBytes());
         this.keyId = keyId;
     }
 
     @Override
-    public String signMessage(String message) {
-        int seq = signSeq;
-        signSeq++;
+    public JSONObject signMessage(JSONObject message) {
+        if (nextMessageSignSeq != 0 && remoteNonce == null) {
+            throw new RuntimeException("Cannot sign the message with sequence number > 1, as we have not yet received a valid message from the remote peer.");
+        }
+
+        int seq = nextMessageSignSeq;
+        nextMessageSignSeq++;
 
         JwtClaims claims = new JwtClaims();
         claims.setClaim("message", message);
         claims.setClaim("messageSeq", seq);
+        claims.setClaim("signerNonce", nonce);
+        claims.setClaim("verifierNonce", remoteNonce);
 
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());
@@ -41,14 +58,18 @@ public class SharedSecretMessageSigner implements MessageSigner {
         jws.setDoKeyValidation(false);
 
         try {
-            return jws.getCompactSerialization();
+            return new JSONObject(jws.getCompactSerialization());
         } catch (JoseException e) {
             throw new IllegalArgumentException("SharedSecretMessageSigner could not sign message " + message);
+        } catch (JSONException e) {
+            // @TODO: Better description
+            throw new RuntimeException("JWTMessageSigner failed to sign message");
         }
     }
 
     @Override
-    public String verifyMessage(String token) {
+    public JSONObject verifyMessage(JSONObject token) {
+        // @TODO: Proper verification
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setVerificationKey(key)
                 .setRelaxVerificationKeyValidation()
@@ -56,10 +77,13 @@ public class SharedSecretMessageSigner implements MessageSigner {
                 .build();
 
         try {
-            JwtClaims claims = jwtConsumer.processToClaims(token);
-            return claims.getClaimValueAsString("message");
+            JwtClaims claims = jwtConsumer.processToClaims(token.toString());
+            return new JSONObject(claims.getClaimValueAsString("message"));
         } catch (InvalidJwtException e) {
             throw new SignalingError(SignalingError.VERIFICATION_ERROR, "Cannot verify the JWT token: " + e.getMessage());
+        } catch (JSONException e) {
+            // @TODO: Better description
+            throw new RuntimeException("JWTMessageSigner failed to verify message");
         }
     }
 }

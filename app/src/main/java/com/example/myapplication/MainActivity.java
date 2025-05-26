@@ -9,18 +9,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.nabto.webrtc.SignalingConnectionState;
+import com.nabto.webrtc.util.JWTMessageSigner;
 import com.nabto.webrtc.util.MessageSigner;
-import com.nabto.webrtc.util.SharedSecretMessageSigner;
-import com.nabto.webrtc.SignalingChannel;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingClientFactory;
 import com.nabto.webrtc.SignalingError;
 import com.nabto.webrtc.util.SignalingCandidate;
-import com.nabto.webrtc.util.SignalingCreateRequest;
 import com.nabto.webrtc.util.SignalingDescription;
 import com.nabto.webrtc.util.SignalingMessageUnion;
+import com.nabto.webrtc.util.SignalingSetupRequest;
 
+import org.json.JSONObject;
 import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
@@ -45,12 +46,12 @@ import io.getstream.webrtc.android.ui.VideoTextureViewRenderer;
 
 public class MainActivity extends AppCompatActivity implements
         PeerConnection.Observer,
-        SignalingChannel.Observer
+        SignalingClient.Observer
 {
     final String TAG = "MyApp";
     final String endpointUrl = "https://eu.webrtc.nabto.net";
-    final String productId = "wp-apy9i4ab";
-    final String deviceId = "wd-fxb4zxg7nyf7sf3w";
+    final String productId = "wp-z3nyma7y";
+    final String deviceId = "wd-wbnx9pat7xifmbuh";
     final String sharedSecret = "MySecret";
 
     // Webrtc
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements
     boolean ignoreOffer = false;
 
     // Nabto signaling
-    MessageSigner signer = new SharedSecretMessageSigner(sharedSecret, "default");
+    MessageSigner signer = new JWTMessageSigner(sharedSecret, "default");
     SignalingClient client;
 
     private void initPeerConnectionFactory() {
@@ -122,10 +123,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onClientConnected() {
-        var channel = client.getSignalingChannel();
-        channel.addObserver(this);
-        var createRequestMessage = new SignalingCreateRequest();
-        channel.sendMessage(signer.signMessage(createRequestMessage.toJson()));
+        client.addObserver(this);
+        var createRequestMessage = new SignalingSetupRequest();
+        client.sendMessage(signer.signMessage(createRequestMessage.toJson()));
     }
 
     private void setupPeerConnection(List<PeerConnection.IceServer> iceServers) {
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements
     private void sendDescription(SessionDescription desc) {
         var signalingDescription = new SignalingDescription(desc.type.canonicalForm(), desc.description).toJson();
         var signed = signer.signMessage(signalingDescription);
-        client.getSignalingChannel().sendMessage(signed);
+        client.sendMessage(signed);
     }
 
     private void sendIceCandidate(IceCandidate candidate) {
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements
                 .withSdpMLineIndex(candidate.sdpMLineIndex)
                 .toJson();
         var signed = signer.signMessage(signalingCandidate);
-        client.getSignalingChannel().sendMessage(signed);
+        client.sendMessage(signed);
     }
 
     @Override
@@ -291,7 +291,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onConnectionStateChange(SignalingConnectionState newState) {
+
+    }
+
+    @Override
+    public void onMessage(JSONObject message) {
         try {
             // verify and decode message
             var verified = signer.verifyMessage(message);
@@ -332,12 +337,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onSignalingReconnect() {
+    public void onConnectionReconnect() {
         Log.d(TAG, "Signaling reconnect requested");
     }
 
     @Override
-    public void onSignalingError(SignalingError error) {
+    public void onError(SignalingError error) {
         Log.d(TAG, error.errorCode);
     }
 }
