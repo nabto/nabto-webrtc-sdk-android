@@ -8,7 +8,7 @@ import java.util.Objects;
 public class ReliabilityMessage {
     public enum MessageType {
         ACK,
-        MESSAGE
+        DATA
     }
 
     public MessageType type;
@@ -16,28 +16,28 @@ public class ReliabilityMessage {
 
     // @TODO: message should now be a jsonobject
     // @TODO: change "message" to "data"
-    public JSONObject message;
+    public JSONObject data;
 
-    public ReliabilityMessage(MessageType type, int seq, JSONObject message) {
+    public ReliabilityMessage(MessageType type, int seq, JSONObject data) {
         this.type = type;
         this.seq = seq;
-        this.message = message;
+        this.data = data;
     }
 
-    public String toJsonString() {
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
         try {
-            JSONObject json = new JSONObject();
-            if (this.type == MessageType.MESSAGE) {
-                json.put("type", "MESSAGE");
-                json.put("message", message);
+            if (this.type == MessageType.DATA) {
+                json.put("type", "DATA");
+                json.put("data", data);
             } else {
                 json.put("type", "ACK");
             }
             json.put("seq", seq);
-            return json.toString();
         } catch (JSONException e) {
             throw new RuntimeException("Should never happen");
         }
+        return json;
     }
 
     public static ReliabilityMessage fromJson(String data) throws JSONException {
@@ -46,12 +46,12 @@ public class ReliabilityMessage {
         if (Objects.equals(type, "ACK")) {
             var seq = json.getInt("seq");
             return new ReliabilityMessage(MessageType.ACK, seq, null);
-        } else if (Objects.equals(type, "MESSAGE")) {
+        } else if (Objects.equals(type, "DATA")) {
             var seq = json.getInt("seq");
-            var msg = json.getJSONObject("message");
-            return new ReliabilityMessage(MessageType.MESSAGE, seq, msg);
+            var msg = json.getJSONObject("data");
+            return new ReliabilityMessage(MessageType.DATA, seq, msg);
         } else {
-            throw new JSONException("ReliabilityMessage type field was not ACK or MESSAGE");
+            throw new JSONException("ReliabilityMessage type field was not ACK or DATA");
         }
     }
 }

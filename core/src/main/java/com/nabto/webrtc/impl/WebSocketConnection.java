@@ -1,5 +1,7 @@
 package com.nabto.webrtc.impl;
 
+import org.json.JSONObject;
+
 /**
  * @TODO: Documentation
  * @TODO: Should this extend AutoCloseable?
@@ -55,7 +57,7 @@ public interface WebSocketConnection {
      * @param connectionId @TODO
      * @param message @TODO
      */
-    void sendMessage(String connectionId, String message);
+    void sendMessage(String connectionId, JSONObject message);
 
     /**
      * Send an error code to the remote peer.

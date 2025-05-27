@@ -25,13 +25,13 @@ public class Reliability {
 
     /**
      * Send a reliable message
-     * @param message The message to send
+     * @param data The message to send
      */
-    public void sendReliableMessage(JSONObject message) {
+    public void sendReliableMessage(JSONObject data) {
         var encoded = new ReliabilityMessage(
-                ReliabilityMessage.MessageType.MESSAGE,
+                ReliabilityMessage.MessageType.DATA,
                 sendSeq,
-                message
+                data
         );
         sendSeq++;
         unackedMessages.add(encoded);
@@ -39,7 +39,6 @@ public class Reliability {
     }
 
     /**
-     *
      * @param message
      * @return
      */
@@ -65,7 +64,7 @@ public class Reliability {
         }
 
         recvSeq++;
-        return message.message;
+        return message.data;
     }
 
     private void handleAck(ReliabilityMessage ack) {
@@ -108,6 +107,6 @@ public class Reliability {
     }
 
     public boolean isInitialMessage(ReliabilityMessage message) {
-        return message.type == ReliabilityMessage.MessageType.MESSAGE && message.seq == 0;
+        return message.type == ReliabilityMessage.MessageType.DATA && message.seq == 0;
     }
 }

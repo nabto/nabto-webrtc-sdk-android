@@ -8,6 +8,7 @@ import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -17,10 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.Key;
+import java.util.Objects;
 import java.util.UUID;
 
-// @TODO: Rename to JWTMessageSigner
-// Look at typescript to compare
 public class JWTMessageSigner implements MessageSigner {
     private final Key key;
     private final String keyId;
@@ -44,21 +44,30 @@ public class JWTMessageSigner implements MessageSigner {
         int seq = nextMessageSignSeq;
         nextMessageSignSeq++;
 
-        JwtClaims claims = new JwtClaims();
-        claims.setClaim("message", message);
-        claims.setClaim("messageSeq", seq);
-        claims.setClaim("signerNonce", nonce);
-        claims.setClaim("verifierNonce", remoteNonce);
+        JSONObject claims = new JSONObject();
+        try {
+            claims.put("message", message);
+            claims.put("messageSeq", seq);
+            claims.put("signerNonce", nonce);
+            if (remoteNonce != null) {
+                claims.put("verifierNonce", remoteNonce);
+            }
+        } catch (JSONException e) {
+            // Should never happen
+        }
 
         JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(claims.toJson());
+        jws.setPayload(claims.toString());
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
         jws.setHeader("kid", keyId);
         jws.setKey(key);
         jws.setDoKeyValidation(false);
 
         try {
-            return new JSONObject(jws.getCompactSerialization());
+            var obj = new JSONObject();
+            obj.put("type", "JWT");
+            obj.put("jwt", jws.getCompactSerialization());
+            return obj;
         } catch (JoseException e) {
             throw new IllegalArgumentException("SharedSecretMessageSigner could not sign message " + message);
         } catch (JSONException e) {
@@ -69,7 +78,6 @@ public class JWTMessageSigner implements MessageSigner {
 
     @Override
     public JSONObject verifyMessage(JSONObject token) {
-        // @TODO: Proper verification
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setVerificationKey(key)
                 .setRelaxVerificationKeyValidation()
@@ -77,13 +85,35 @@ public class JWTMessageSigner implements MessageSigner {
                 .build();
 
         try {
-            JwtClaims claims = jwtConsumer.processToClaims(token.toString());
-            return new JSONObject(claims.getClaimValueAsString("message"));
+            JwtClaims claims = jwtConsumer.processToClaims(token.get("jwt").toString());
+            long messageSeq = claims.getClaimValue("messageSeq", Long.class);
+            if (messageSeq != nextMessageVerifySeq) {
+                throw new SignalingError(SignalingError.VERIFICATION_ERROR, "The message sequence number does not match the expected sequence number.");
+            }
+
+            var signerNonce = claims.getClaimValueAsString("signerNonce");
+            var verifierNonce = claims.getClaimValueAsString("verifierNonce");
+            if (messageSeq == 0) {
+                remoteNonce = signerNonce;
+            } else {
+                if (!Objects.equals(remoteNonce, signerNonce)) {
+                    throw new SignalingError(SignalingError.VERIFICATION_ERROR, "The value of messageSignerNonce does not match the expected value for the session.");
+                }
+
+                if (!Objects.equals(nonce, verifierNonce)) {
+                    throw new SignalingError(SignalingError.VERIFICATION_ERROR, "The value of messageVerifierNonce does not match the expected value for the session.");
+                }
+            }
+
+            nextMessageVerifySeq++;
+            var claimsJson = new JSONObject(claims.toJson());
+            return claimsJson.getJSONObject("message");
         } catch (InvalidJwtException e) {
             throw new SignalingError(SignalingError.VERIFICATION_ERROR, "Cannot verify the JWT token: " + e.getMessage());
         } catch (JSONException e) {
-            // @TODO: Better description
-            throw new RuntimeException("JWTMessageSigner failed to verify message");
+            throw new SignalingError(SignalingError.DECODE_ERROR, "Cannot verify the JWT token due to a JSON error: " + e.getMessage());
+        } catch (MalformedClaimException e) {
+            throw new SignalingError(SignalingError.DECODE_ERROR, "Cannot verify the JWT token due to malformed claims: " + e.getMessage());
         }
     }
 }

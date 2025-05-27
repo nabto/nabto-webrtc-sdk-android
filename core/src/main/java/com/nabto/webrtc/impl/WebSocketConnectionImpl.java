@@ -34,7 +34,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     }
 
     @Override
-    public void sendMessage(String channelId, String message) {
+    public void sendMessage(String channelId, JSONObject message) {
         send(new RoutingMessage(
                 RoutingMessage.MessageType.MESSAGE,
                 channelId,

@@ -52,7 +52,7 @@ public class SignalingClientImpl implements SignalingClient {
         this.deviceId = deviceId;
         this.requireOnline = requireOnline;
 
-        reliabilityLayer = new Reliability((msg) -> this.sendRoutingMessage(msg.toJsonString()));
+        reliabilityLayer = new Reliability((msg) -> this.sendRoutingMessage(msg.toJson()));
         backend = new Backend(endpointUrl, productId, deviceId);
     }
 
@@ -240,7 +240,10 @@ public class SignalingClientImpl implements SignalingClient {
                 handlingReceivedMessages = true;
                 var msg = receivedMessages.remove(0);
                 if (msg != null) {
-                    observers.forEach(obs -> obs.onMessage(msg));
+                    //observers.forEach(obs -> obs.onMessage(msg));
+                    for (var obs: observers) {
+                        obs.onMessage(msg);
+                    }
                 }
                 handlingReceivedMessages = false;
                 handleReceivedMessages();
@@ -248,7 +251,7 @@ public class SignalingClientImpl implements SignalingClient {
         }
     }
 
-    public void sendRoutingMessage(String message) {
+    public void sendRoutingMessage(JSONObject message) {
         webSocket.sendMessage(this.connectionId, message);
     }
 

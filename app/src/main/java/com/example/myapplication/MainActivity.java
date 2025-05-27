@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.d(TAG, "Creating signaling client");
         client = SignalingClientFactory.createSignalingClient(opts);
+        client.addObserver(this);
         client.connect().whenComplete((res, ex) -> {
             if (ex == null) {
                 onClientConnected();
@@ -123,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onClientConnected() {
-        client.addObserver(this);
         var createRequestMessage = new SignalingSetupRequest();
         client.sendMessage(signer.signMessage(createRequestMessage.toJson()));
     }
