@@ -2,9 +2,22 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+def optionsFile = rootProject.file("app/options.properties")
+def props = new Properties()
+
+if (optionsFile.exists()) {
+    props.load(new FileInputStream(optionsFile))
+} else {
+    throw new GradleException("Missing options.properties. Please copy options.example.properties to options.properties and fill in your values.")
+}
+
 android {
     namespace 'com.example.myapplication'
     compileSdk 35
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId "com.example.myapplication"
@@ -14,6 +27,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "PRODUCT_ID", "\"${props['product_id']}\""
+        buildConfigField "String", "DEVICE_ID", "\"${props['device_id']}\""
+        buildConfigField "String", "SHARED_SECRET", "\"${props['shared_secret']}\""
     }
 
     buildTypes {
