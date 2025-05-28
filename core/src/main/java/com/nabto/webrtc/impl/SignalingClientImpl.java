@@ -20,6 +20,7 @@ public class SignalingClientImpl implements SignalingClient {
     private final String endpointUrl;
     private final String productId;
     private final String deviceId;
+    private final String accessToken;
     private final boolean requireOnline;
     private final Backend backend;
 
@@ -31,14 +32,15 @@ public class SignalingClientImpl implements SignalingClient {
 
     private SignalingConnectionState connectionState = SignalingConnectionState.NEW;
     private String connectionId = null;
-    private String reconnectToken = null;
+    private String signalingUrl = "";
+    private boolean isReconnecting = false;
     private int reconnectCounter = 0;
     private int openedWebSockets = 0;
     private List<SignalingClient.Observer> observers = new ArrayList<>();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
 
-    public SignalingClientImpl(String endpointUrl, String productId, String deviceId, boolean requireOnline) {
+    public SignalingClientImpl(String endpointUrl, String productId, String deviceId, boolean requireOnline, String accessToken) {
         if (productId.isEmpty() || deviceId.isEmpty()) {
             throw new IllegalArgumentException("SignalingClient was created with an empty product id or device id.");
         }
@@ -51,6 +53,7 @@ public class SignalingClientImpl implements SignalingClient {
         this.productId = productId;
         this.deviceId = deviceId;
         this.requireOnline = requireOnline;
+        this.accessToken = accessToken;
 
         reliabilityLayer = new Reliability((msg) -> this.sendRoutingMessage(msg.toJson()));
         backend = new Backend(endpointUrl, productId, deviceId);
@@ -58,11 +61,6 @@ public class SignalingClientImpl implements SignalingClient {
 
     @Override
     public CompletableFuture<Void> connect() {
-        return connect(null);
-    }
-
-    @Override
-    public CompletableFuture<Void> connect(String accessToken) {
         var future = new CompletableFuture<Void>();
         if (connectionState != SignalingConnectionState.NEW) {
             future.completeExceptionally(new IllegalStateException("SignalingClient.connect has already been called previously!"));
@@ -73,7 +71,6 @@ public class SignalingClientImpl implements SignalingClient {
         backend.doClientConnect(accessToken).whenComplete((res, ex) -> {
             if (ex == null) {
                 this.connectionId = res.channelId;
-                this.reconnectToken = res.reconnectToken;
 
                 if (res.deviceOnline) {
                     setChannelState(SignalingChannelState.ONLINE);
@@ -85,6 +82,7 @@ public class SignalingClientImpl implements SignalingClient {
                     }
                 }
 
+                this.signalingUrl = res.signalingUrl;
                 openWebsocketConnection(res.signalingUrl);
                 future.complete(null);
             } else {
@@ -117,7 +115,7 @@ public class SignalingClientImpl implements SignalingClient {
 
     @Override
     public void checkAlive() {
-
+        webSocket.checkAlive(1000);
     }
 
     @Override
@@ -149,8 +147,35 @@ public class SignalingClientImpl implements SignalingClient {
         observers.forEach((obs) -> obs.onChannelStateChange(channelState));
     }
 
+    private void reconnect() {
+        if (connectionState == SignalingConnectionState.FAILED || connectionState == SignalingConnectionState.CLOSED) {
+            return;
+        }
+
+        isReconnecting = true;
+        setConnectionState(SignalingConnectionState.CONNECTING);
+        openWebsocketConnection(signalingUrl);
+    }
+
     private void waitReconnect() {
-        // @TODO: implementation
+        if (connectionState == SignalingConnectionState.FAILED || connectionState == SignalingConnectionState.CLOSED) {
+            return;
+        }
+
+        if (connectionState == SignalingConnectionState.WAIT_RETRY) {
+            return;
+        }
+
+        if (reconnectCounter > 7) {
+            isReconnecting = false;
+            setConnectionState(SignalingConnectionState.FAILED);
+            return;
+        }
+
+        setConnectionState(SignalingConnectionState.WAIT_RETRY);
+        var reconnectWait = 1000 * (1 << reconnectCounter);
+        reconnectCounter++;
+        new android.os.Handler().postDelayed(this::reconnect, reconnectWait);
     }
 
     private void openWebsocketConnection(String signalingUrl) {
@@ -178,7 +203,15 @@ public class SignalingClientImpl implements SignalingClient {
 
             @Override
             public void onCloseOrError(String errorCode) {
-                waitReconnect();
+                if (connectionState == SignalingConnectionState.FAILED || connectionState == SignalingConnectionState.CLOSED) {
+                    return;
+                }
+
+                if (openedWebSockets == 0) {
+                    handleError(new SignalingError("WEBSOCKET_ERROR", errorCode));
+                } else {
+                    waitReconnect();
+                }
             }
 
             @Override
@@ -187,6 +220,13 @@ public class SignalingClientImpl implements SignalingClient {
                 openedWebSockets++;
                 handleWebSocketConnect(openedWebSockets > 1);
                 setConnectionState(SignalingConnectionState.CONNECTED);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                if (isReconnecting) {
+                    waitReconnect();
+                }
             }
         });
     }
@@ -197,7 +237,7 @@ public class SignalingClientImpl implements SignalingClient {
 
     public void handleRoutingMessage(String message) {
         try {
-            var parsed = ReliabilityMessage.fromJson(message);
+            var parsed = ReliabilityData.fromJson(message);
             var reliableMessage = reliabilityLayer.handleRoutingMessage(parsed);
             receivedMessages.add(reliableMessage);
             handleReceivedMessages();
@@ -233,14 +273,12 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     private void handleReceivedMessages() {
-        // @TODO: validate this is correct
         if (!handlingReceivedMessages)
         {
             if (!receivedMessages.isEmpty()) {
                 handlingReceivedMessages = true;
                 var msg = receivedMessages.remove(0);
                 if (msg != null) {
-                    //observers.forEach(obs -> obs.onMessage(msg));
                     for (var obs: observers) {
                         obs.onMessage(msg);
                     }

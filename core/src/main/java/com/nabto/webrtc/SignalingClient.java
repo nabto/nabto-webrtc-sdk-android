@@ -24,8 +24,6 @@ public interface SignalingClient extends AutoCloseable {
         /**
          * Callback invoked when a message is received from the Camera
          * @param message The received message
-         *
-         * @TODO: Change message type to jsonobject
          */
         void onMessage(JSONObject message);
 
@@ -38,7 +36,6 @@ public interface SignalingClient extends AutoCloseable {
         /**
          * Callback invoked when the underlying signaling channel was reconnected.
          *
-         * @TODO: Rename to onConnectionReconnect
          */
         void onConnectionReconnect();
 
@@ -49,7 +46,6 @@ public interface SignalingClient extends AutoCloseable {
          *
          * @param error The error that occurred.
          *
-         * @TODO: Rename to onError
          */
         void onError(SignalingError error);
     }
@@ -59,17 +55,6 @@ public interface SignalingClient extends AutoCloseable {
      * @return {@link CompletionStage} that will be completed when the connection is established or an error occurs.
      */
     CompletableFuture<Void> connect();
-
-    /**
-     * Asynchronously attempt to make an authorized connection to the signaling service.
-     * @param accessToken Access token that will be used to establish an authorized connection.
-     * @return {@link Future} that will be completed when the connection is established or an error occurs.
-     *
-     * @TODO: Remove this function, access token will be added through factory options object.
-     */
-    CompletableFuture<Void> connect(String accessToken);
-
-    // @TODO: conncetion state change callbacks?
 
     /**
      * Get the current state of the Signaling Connection
@@ -87,8 +72,6 @@ public interface SignalingClient extends AutoCloseable {
     /**
      * Send a message to the other peer
      * @param msg The message to send
-     *
-     * @TODO: Consider using jsonobject as the parameter, or some kind of generic
      */
     void sendMessage(JSONObject msg);
 

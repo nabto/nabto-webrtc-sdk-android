@@ -1,6 +1,7 @@
 package com.nabto.webrtc.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,7 +60,13 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     @Override
     public void checkAlive(int timeout) {
-        // @TODO: Implementation
+        var currentPongCounter = pongCounter;
+        sendPing();
+        new android.os.Handler().postDelayed(() -> {
+            if (currentPongCounter == pongCounter) {
+                observer.onCloseOrError("Ping timeout");
+            }
+        }, timeout);
     }
 
     @Override
@@ -138,6 +145,12 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
         super.onClosed(webSocket, code, reason);
         observer.onCloseOrError("closed");
+    }
+
+    @Override
+    public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
+        super.onFailure(webSocket, t, response);
+        observer.onFailure(t);
     }
 
     public void close() {

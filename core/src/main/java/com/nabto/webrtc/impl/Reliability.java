@@ -8,13 +8,11 @@ import java.util.logging.Logger;
 
 public class Reliability {
     public interface RoutingMessageSender {
-        void sendRoutingMessage(ReliabilityMessage message);
+        void sendRoutingMessage(ReliabilityData message);
     }
 
-    // @TODO: Rename "messages" to "data"
-
     private final Logger logger = Logger.getLogger("ReliabilityLayer");
-    private final List<ReliabilityMessage> unackedMessages = new ArrayList<>();
+    private final List<ReliabilityData> unackedMessages = new ArrayList<>();
     private int recvSeq = 0;
     private int sendSeq = 0;
     private RoutingMessageSender sender;
@@ -28,8 +26,8 @@ public class Reliability {
      * @param data The message to send
      */
     public void sendReliableMessage(JSONObject data) {
-        var encoded = new ReliabilityMessage(
-                ReliabilityMessage.MessageType.DATA,
+        var encoded = new ReliabilityData(
+                ReliabilityData.MessageType.DATA,
                 sendSeq,
                 data
         );
@@ -42,8 +40,8 @@ public class Reliability {
      * @param message
      * @return
      */
-    public JSONObject handleRoutingMessage(ReliabilityMessage message) {
-        if (message.type == ReliabilityMessage.MessageType.ACK) {
+    public JSONObject handleRoutingMessage(ReliabilityData message) {
+        if (message.type == ReliabilityData.MessageType.ACK) {
             handleAck(message);
             return null;
         } else {
@@ -51,7 +49,7 @@ public class Reliability {
         }
     }
 
-    private JSONObject handleReliabilityMessage(ReliabilityMessage message) {
+    private JSONObject handleReliabilityMessage(ReliabilityData message) {
         if (message.seq <= recvSeq) {
             // Message was expected or retransmitted.
             sendAck(message.seq);
@@ -67,7 +65,7 @@ public class Reliability {
         return message.data;
     }
 
-    private void handleAck(ReliabilityMessage ack) {
+    private void handleAck(ReliabilityData ack) {
         if (!unackedMessages.isEmpty()) {
             var firstItem = unackedMessages.get(0);
             if (firstItem.seq == ack.seq) {
@@ -88,7 +86,7 @@ public class Reliability {
 
     private void sendAck(int seq) {
         logger.info("Sending ACK with seq " + seq);
-        var ack = new ReliabilityMessage(ReliabilityMessage.MessageType.ACK, seq, null);
+        var ack = new ReliabilityData(ReliabilityData.MessageType.ACK, seq, null);
         sender.sendRoutingMessage(ack);
     }
 
@@ -106,7 +104,7 @@ public class Reliability {
         sendUnackedMessages();
     }
 
-    public boolean isInitialMessage(ReliabilityMessage message) {
-        return message.type == ReliabilityMessage.MessageType.DATA && message.seq == 0;
+    public boolean isInitialMessage(ReliabilityData message) {
+        return message.type == ReliabilityData.MessageType.DATA && message.seq == 0;
     }
 }
