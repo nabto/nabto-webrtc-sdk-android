@@ -13,6 +13,7 @@ public class SignalingClientFactory {
         private String endpointUrl = "";
         private String productId = "";
         private String deviceId = "";
+        private String accessToken = "";
         private boolean requireOnline = false;
 
         /**
@@ -45,6 +46,11 @@ public class SignalingClientFactory {
             return this;
         }
 
+        /**
+         * Set whether the SignalingClient should require the device to be online.
+         * @param requireOnline If true specifies that the device should be online.
+         * @return This Options object.
+         */
         public Options setRequireOnline(boolean requireOnline) {
             this.requireOnline = requireOnline;
             return this;
@@ -57,6 +63,12 @@ public class SignalingClientFactory {
      * @return An implementation of {@link SignalingClient}.
      */
     public static SignalingClient createSignalingClient(Options opts) {
-        return new SignalingClientImpl(opts.endpointUrl, opts.productId, opts.deviceId, opts.requireOnline);
+        return new SignalingClientImpl(
+                opts.endpointUrl,
+                opts.productId,
+                opts.deviceId,
+                opts.requireOnline,
+                opts.accessToken
+        );
     }
 }

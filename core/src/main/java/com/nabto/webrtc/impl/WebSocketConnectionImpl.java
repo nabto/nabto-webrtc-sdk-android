@@ -1,6 +1,7 @@
 package com.nabto.webrtc.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     }
 
     @Override
-    public void sendMessage(String channelId, String message) {
+    public void sendMessage(String channelId, JSONObject message) {
         send(new RoutingMessage(
                 RoutingMessage.MessageType.MESSAGE,
                 channelId,
@@ -59,7 +60,13 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     @Override
     public void checkAlive(int timeout) {
-        // @TODO: Implementation
+        var currentPongCounter = pongCounter;
+        sendPing();
+        new android.os.Handler().postDelayed(() -> {
+            if (currentPongCounter == pongCounter) {
+                observer.onCloseOrError("Ping timeout");
+            }
+        }, timeout);
     }
 
     @Override
@@ -78,6 +85,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
             var type = json.getString("type");
             if (Objects.equals(type, "MESSAGE")) {
                 var channelId = json.getString("channelId");
+                // @TODO: Message is now a jsonobject
                 var msg = json.getString("message");
                 var authorized = json.optBoolean("authorized", false);
                 observer.onMessage(channelId, msg, authorized);
@@ -86,6 +94,15 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
             if (Objects.equals(type, "ERROR")) {
                 var channelId = json.getString("channelId");
                 var errorCode = json.getString("errorCode");
+                var errorMessageOrNull = json.optString("errorMessage");
+                // @TODO: add error message to onConnectionError
+                // {
+                //      type: "ERROR",
+                //      error: {
+                //          code: string,
+                //          message: string | undefined
+                //      }
+                // }
                 observer.onConnectionError(channelId, errorCode);
             }
 
@@ -128,6 +145,12 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
         super.onClosed(webSocket, code, reason);
         observer.onCloseOrError("closed");
+    }
+
+    @Override
+    public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
+        super.onFailure(webSocket, t, response);
+        observer.onFailure(t);
     }
 
     public void close() {

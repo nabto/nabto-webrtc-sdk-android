@@ -103,7 +103,7 @@ public class Backend {
                 .url(baseUrl + "/v1/client/connect")
                 .post(RequestBody.create(jsonBody.toString(), MEDIA_TYPE_JSON));
 
-        if (authToken != null) {
+        if (authToken != null && !authToken.isEmpty()) {
             builder.addHeader("Authorization", "Bearer " + authToken);
         }
 

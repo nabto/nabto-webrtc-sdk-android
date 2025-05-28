@@ -2,6 +2,9 @@ package com.nabto.webrtc.util;
 
 import androidx.annotation.Nullable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class SignalingCandidate implements SignalingMessage {
@@ -36,7 +39,16 @@ public class SignalingCandidate implements SignalingMessage {
     }
 
     @Override
-    public String toJson() {
+    public JSONObject toJson() {
+        try {
+            return new JSONObject(toJsonString());
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    @Override
+    public String toJsonString() {
         return JsonUtil.toJson(SignalingCandidate.class, this);
     }
 

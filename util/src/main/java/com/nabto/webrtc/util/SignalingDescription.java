@@ -1,5 +1,8 @@
 package com.nabto.webrtc.util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class SignalingDescription implements SignalingMessage {
@@ -17,7 +20,16 @@ public class SignalingDescription implements SignalingMessage {
     }
 
     @Override
-    public String toJson() {
+    public JSONObject toJson() {
+        try {
+            return new JSONObject(toJsonString());
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    @Override
+    public String toJsonString() {
         return JsonUtil.toJson(SignalingDescription.class, this);
     }
 
