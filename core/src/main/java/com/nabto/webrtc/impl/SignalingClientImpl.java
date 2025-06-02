@@ -196,8 +196,8 @@ public class SignalingClientImpl implements SignalingClient {
             }
 
             @Override
-            public void onConnectionError(String connectionId, String errorCode) {
-                var err = new SignalingError(errorCode, "", true); // @TODO: error message
+            public void onConnectionError(String connectionId, RoutingMessageError error) {
+                var err = new SignalingError(error.errorCode, error.errorMessage, true);
                 handleError(err);
             }
 
@@ -294,6 +294,6 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     public void sendError(String channelId, String errorCode, String errorMessage) {
-        webSocket.sendError(channelId, errorCode); // @TODO: send errorMessage
+        webSocket.sendError(channelId, errorCode, errorMessage);
     }
 }

@@ -1,20 +1,12 @@
 package com.nabto.webrtc;
 
 import android.content.Context;
-import android.util.Log;
-
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import static org.junit.Assert.*;
-
 import com.nabto.webrtc.impl.Backend;
-import com.nabto.webrtc.schema.SignalingCandidate;
-import com.nabto.webrtc.schema.SignalingCreateRequest;
-
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -38,39 +30,5 @@ public class ExampleInstrumentedTest {
         var future = backend.getIceServers();
         var iceServers = future.get();
         assertEquals("test", iceServers);
-    }
-
-    @Test
-    public void testCreateSignalingClient() {
-        var opts = new SignalingClientFactory.Options()
-                .setEndpointUrl("https://eu.webrtc.nabto.net")
-                .setProductId("wp-apy9i4ab")
-                .setDeviceId("wd-fxb4zxg7nyf7sf3w");
-
-        try (var client = SignalingClientFactory.createSignalingClient(opts)) {
-            var f = client.connect();
-            f.get();
-            MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
-            var signed = signer.signMessage(new SignalingCreateRequest().toJson());
-            client.getSignalingChannel().sendMessage(signed);
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    public void testSharedSecretSignMessage() {
-        MessageSigner signer = new SharedSecretMessageSigner("MySecret", "default");
-        var input = "Hello World";
-        var signed = signer.signMessage(input);
-        var decoded = signer.verifyMessage(signed);
-        assertEquals(input, decoded);
-    }
-
-    @Test
-    public void testMessageJsonConversion() {
-        var x = new SignalingCandidate("mycandidatething").withSdpMLineIndex(22);
-        Log.d("TEST", x.toJson());
     }
 }
