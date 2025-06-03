@@ -1,6 +1,7 @@
 package com.nabto.webrtc.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     @Override
     public void sendMessage(String channelId, JSONObject message) {
         send(new RoutingMessage(
-                RoutingMessage.MessageType.MESSAGE,
+                RoutingMessageType.MESSAGE,
                 channelId,
                 message,
                 false,
@@ -46,20 +47,26 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     }
 
     @Override
-    public void sendError(String channelId, String errorCode) {
+    public void sendError(String channelId, String errorCode, String errorMessage) {
         send(new RoutingMessage(
-                RoutingMessage.MessageType.ERROR,
+                RoutingMessageType.ERROR,
                 channelId,
                 null,
                 false,
                 errorCode,
-                "JAVA_UNIMPLEMENTED" // @TODO
+                errorMessage
         ));
     }
 
     @Override
     public void checkAlive(int timeout) {
-        // @TODO: Implementation
+        var currentPongCounter = pongCounter;
+        sendPing();
+        new android.os.Handler().postDelayed(() -> {
+            if (currentPongCounter == pongCounter) {
+                observer.onCloseOrError("Ping timeout");
+            }
+        }, timeout);
     }
 
     @Override
@@ -76,44 +83,36 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
         try {
             JSONObject json = new JSONObject(text);
             var type = json.getString("type");
-            if (Objects.equals(type, "MESSAGE")) {
+            if (Objects.equals(type, RoutingMessageType.MESSAGE.text())) {
                 var channelId = json.getString("channelId");
-                // @TODO: Message is now a jsonobject
                 var msg = json.getString("message");
                 var authorized = json.optBoolean("authorized", false);
                 observer.onMessage(channelId, msg, authorized);
             }
 
-            if (Objects.equals(type, "ERROR")) {
+            if (Objects.equals(type, RoutingMessageType.ERROR.text())) {
                 var channelId = json.getString("channelId");
-                var errorCode = json.getString("errorCode");
-                var errorMessageOrNull = json.optString("errorMessage");
-                // @TODO: add error message to onConnectionError
-                // {
-                //      type: "ERROR",
-                //      error: {
-                //          code: string,
-                //          message: string | undefined
-                //      }
-                // }
-                observer.onConnectionError(channelId, errorCode);
+                var errorJson = json.getJSONObject("error");
+                var errorCode = errorJson.getString("code");
+                var errorMessage = errorJson.optString("message");
+                observer.onConnectionError(channelId, new RoutingMessageError(errorCode, errorMessage));
             }
 
-            if (Objects.equals(type, "PEER_CONNECTED")) {
+            if (Objects.equals(type, RoutingMessageType.PEER_CONNECTED.text())) {
                 var channelId = json.getString("channelId");
                 observer.onPeerConnected(channelId);
             }
 
-            if (Objects.equals(type, "PEER_OFFLINE")) {
+            if (Objects.equals(type, RoutingMessageType.PEER_OFFLINE.text())) {
                 var channelId = json.getString("channelId");
                 observer.onPeerOffline(channelId);
             }
 
-            if (Objects.equals(type, "PING")) {
+            if (Objects.equals(type, RoutingMessageType.PING.text())) {
                 sendPong();
             }
 
-            if (Objects.equals(type, "PONG")) {
+            if (Objects.equals(type, RoutingMessageType.PONG.text())) {
                 pongCounter++;
             }
         } catch (JSONException e) {
@@ -140,6 +139,12 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
         observer.onCloseOrError("closed");
     }
 
+    @Override
+    public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
+        super.onFailure(webSocket, t, response);
+        observer.onFailure(t);
+    }
+
     public void close() {
         if (ws != null) {
             ws.close(1000, null);
@@ -148,7 +153,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     public void sendPing() {
         send(new RoutingMessage(
-                RoutingMessage.MessageType.PING,
+                RoutingMessageType.PING,
                 null,
                 null,
                 false,
@@ -159,7 +164,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     private void sendPong() {
         send(new RoutingMessage(
-                RoutingMessage.MessageType.PONG,
+                RoutingMessageType.PONG,
                 null,
                 null,
                 false,
@@ -177,14 +182,14 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
             JSONObject json = new JSONObject();
             switch (msg.type) {
                 case MESSAGE: {
-                    json.put("type", "MESSAGE");
+                    json.put("type", RoutingMessageType.MESSAGE.text());
                     json.put("channelId", msg.channelId);
                     json.put("message", msg.message);
                     break;
                 }
 
                 case ERROR: {
-                    json.put("type", "ERROR");
+                    json.put("type", RoutingMessageType.ERROR.text());
                     json.put("channelId", msg.channelId);
                     json.put("errorCode", msg.errorCode);
                     if (msg.errorMessage != null) {
@@ -194,12 +199,12 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 }
 
                 case PING: {
-                    json.put("type", "PING");
+                    json.put("type", RoutingMessageType.PING.text());
                     break;
                 }
 
                 case PONG: {
-                    json.put("type", "PONG");
+                    json.put("type", RoutingMessageType.PONG.text());
                     break;
                 }
 

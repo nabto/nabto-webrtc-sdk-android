@@ -13,4 +13,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+
 app/options.properties
+
+
+# Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
