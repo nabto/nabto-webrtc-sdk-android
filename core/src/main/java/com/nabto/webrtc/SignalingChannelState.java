@@ -11,13 +11,13 @@ public enum SignalingChannelState {
      */
     NEW,
     /**
-     * The state is online if our best guess is that the device is currently online.
+     * The state is connected if our best guess is that the other peer is currently connected to the signaling service.
      */
-    ONLINE,
+    CONNECTED,
     /**
-     * The state is offline if the current best guess is that the device is offline.
+     * The state is DISCONNECTEC if the current best guess is that the other peer is disconnected from the signaling service.
      */
-    OFFLINE,
+    DISCONNECTED,
     /**
      * If the channel has received an error which is fail in the protocol the state is failed.
      */

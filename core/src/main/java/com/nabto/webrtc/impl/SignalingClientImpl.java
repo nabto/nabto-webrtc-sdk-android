@@ -73,9 +73,9 @@ public class SignalingClientImpl implements SignalingClient {
                 this.connectionId = res.channelId;
 
                 if (res.deviceOnline) {
-                    setChannelState(SignalingChannelState.ONLINE);
+                    setChannelState(SignalingChannelState.CONNECTED);
                 } else {
-                    setChannelState(SignalingChannelState.OFFLINE);
+                    setChannelState(SignalingChannelState.DISCONNECTED);
                     if (this.requireOnline) {
                         future.completeExceptionally(new RuntimeException("The requested device is not online."));
                         return;
@@ -134,7 +134,7 @@ public class SignalingClientImpl implements SignalingClient {
         closed = true;
         webSocket.close();
         setConnectionState(SignalingConnectionState.CLOSED);
-        setChannelState(SignalingChannelState.OFFLINE);
+        setChannelState(SignalingChannelState.DISCONNECTED);
     }
 
     private void setConnectionState(SignalingConnectionState state) {
@@ -247,12 +247,12 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     public void handlePeerConnected() {
-        setChannelState(SignalingChannelState.ONLINE);
+        setChannelState(SignalingChannelState.CONNECTED);
         reliabilityLayer.handlePeerConnected();
     }
 
     public void handlePeerOffline() {
-        setChannelState(SignalingChannelState.OFFLINE);
+        setChannelState(SignalingChannelState.DISCONNECTED);
     }
 
     public void handleError(SignalingError error) {
