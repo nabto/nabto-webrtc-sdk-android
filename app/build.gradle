@@ -3,12 +3,15 @@ plugins {
 }
 
 def optionsFile = rootProject.file("app/options.properties")
+def defaultOptionsFile = rootProject.file("app/options.properties.default")
 def props = new Properties()
 
 if (optionsFile.exists()) {
     props.load(new FileInputStream(optionsFile))
+} else if (defaultOptionsFile.exists()) {
+    props.load(new FileInputStream(defaultOptionsFile))
 } else {
-    throw new GradleException("Missing options.properties. Please copy options.example.properties to options.properties and fill in your values.")
+    throw new GradleException("Missing options.properties and options.properties.default.")
 }
 
 android {
