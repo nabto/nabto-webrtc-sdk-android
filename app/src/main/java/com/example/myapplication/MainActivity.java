@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+
+import com.example.myapplication.BuildConfig;
+
 import android.os.Bundle;
 import android.util.Log;
 
@@ -50,9 +53,9 @@ public class MainActivity extends AppCompatActivity implements
 {
     final String TAG = "MyApp";
     final String endpointUrl = "https://eu.webrtc.nabto.net";
-    final String productId = "wp-z3nyma7y";
-    final String deviceId = "wd-wbnx9pat7xifmbuh";
-    final String sharedSecret = "MySecret";
+    final String productId = BuildConfig.PRODUCT_ID;
+    final String deviceId = BuildConfig.DEVICE_ID;
+    final String sharedSecret = BuildConfig.SHARED_SECRET;
 
     // Webrtc
     PeerConnectionFactory peerConnectionFactory = null;
