@@ -19,18 +19,19 @@ import org.json.JSONObject;
 
 import java.security.Key;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class JWTMessageSigner implements MessageSigner {
     private final Key key;
-    private final String keyId;
+    private final Optional<String> keyId;
 
     private int nextMessageSignSeq = 0;
     private int nextMessageVerifySeq = 0;
     private String nonce = UUID.randomUUID().toString();
     @Nullable private String remoteNonce = null;
 
-    public JWTMessageSigner(String sharedSecret, String keyId) {
+    public JWTMessageSigner(String sharedSecret, Optional<String> keyId) {
         this.key = new HmacKey(sharedSecret.getBytes());
         this.keyId = keyId;
     }
@@ -59,7 +60,9 @@ public class JWTMessageSigner implements MessageSigner {
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toString());
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
-        jws.setHeader("kid", keyId);
+        if (this.keyId.isPresent()) {
+            jws.setHeader("kid", keyId.get());
+        }
         jws.setKey(key);
         jws.setDoKeyValidation(false);
 
@@ -78,6 +81,7 @@ public class JWTMessageSigner implements MessageSigner {
 
     @Override
     public JSONObject verifyMessage(JSONObject token) {
+        // TODO validate that this is a message with type JWT.
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setVerificationKey(key)
                 .setRelaxVerificationKeyValidation()
