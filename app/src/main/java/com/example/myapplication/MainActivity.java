@@ -13,14 +13,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.nabto.webrtc.SignalingConnectionState;
+import com.nabto.webrtc.util.ClientMessageTransport;
 import com.nabto.webrtc.util.JWTMessageSigner;
 import com.nabto.webrtc.util.MessageSigner;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingClientFactory;
 import com.nabto.webrtc.SignalingError;
+import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
+import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.SignalingMessageUnion;
 import com.nabto.webrtc.util.SignalingSetupRequest;
 
@@ -44,12 +47,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import io.getstream.webrtc.android.ui.VideoTextureViewRenderer;
 
 public class MainActivity extends AppCompatActivity implements
         PeerConnection.Observer,
-        SignalingClient.Observer
+        SignalingClient.Observer,
+        MessageTransport.Observer
 {
     final String TAG = "MyApp";
     final String endpointUrl = "https://eu.webrtc.nabto.net";
@@ -68,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements
     boolean ignoreOffer = false;
 
     // Nabto signaling
-    MessageSigner signer = new JWTMessageSigner(sharedSecret, "default");
     SignalingClient client;
+    MessageTransport messageTransport;
 
     private void initPeerConnectionFactory() {
         var initOptions = PeerConnectionFactory
@@ -118,6 +124,8 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.d(TAG, "Creating signaling client");
         client = SignalingClientFactory.createSignalingClient(opts);
+        messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret, Optional.empty());
+        messageTransport.addObserver(this);
         client.addObserver(this);
         client.connect().whenComplete((res, ex) -> {
             if (ex == null) {
@@ -127,12 +135,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onClientConnected() {
-        var createRequestMessage = new SignalingSetupRequest();
-        client.sendMessage(signer.signMessage(createRequestMessage.toJson()));
     }
 
-    private void setupPeerConnection(List<PeerConnection.IceServer> iceServers) {
-        var rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
+    private void setupPeerConnection(List<SignalingIceServer> iceServers) {
+        var iceServers2 = iceServers.stream().map(iceServer -> {
+            var builder = PeerConnection.IceServer.builder(iceServer.urls);
+            if (iceServer.username != null) { builder.setUsername(iceServer.username); }
+            if (iceServer.credential != null) { builder.setPassword(iceServer.credential); }
+            return builder.createIceServer();
+        }).collect(Collectors.toList());
+        var rtcConfig = new PeerConnection.RTCConfiguration(iceServers2);
         peerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, this);
     }
 
@@ -189,18 +201,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void sendDescription(SessionDescription desc) {
-        var signalingDescription = new SignalingDescription(desc.type.canonicalForm(), desc.description).toJson();
-        var signed = signer.signMessage(signalingDescription);
-        client.sendMessage(signed);
+        messageTransport.sendWebRTCSignalingMessage(new SignalingDescription(desc.type.canonicalForm(), desc.description));
     }
 
     private void sendIceCandidate(IceCandidate candidate) {
-        var signalingCandidate = new SignalingCandidate(candidate.sdp)
+        messageTransport.sendWebRTCSignalingMessage(new SignalingCandidate(candidate.sdp)
                 .withSdpMid(candidate.sdpMid)
-                .withSdpMLineIndex(candidate.sdpMLineIndex)
-                .toJson();
-        var signed = signer.signMessage(signalingCandidate);
-        client.sendMessage(signed);
+                .withSdpMLineIndex(candidate.sdpMLineIndex));
     }
 
     @Override
@@ -300,38 +307,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMessage(JSONObject message) {
-        try {
-            // verify and decode message
-            var verified = signer.verifyMessage(message);
-            var msg = SignalingMessageUnion.fromJson(verified);
 
-            if (msg.isDescription()) {
-                setRemoteDescription(msg.getDescription().description);
-            }
-
-            if (msg.isCandidate()) {
-                addIceCandidate(msg.getCandidate().candidate);
-            }
-
-            if (msg.isCreateRequest()) {
-                throw new RuntimeException("Received createRequest but I'm a client?");
-            }
-
-            if (msg.isCreateResponse()) {
-                var iceServers = new ArrayList<PeerConnection.IceServer>();
-                var response = msg.getCreateResponse();
-                for (var iceServer : response.iceServers) {
-                    var builder = PeerConnection.IceServer.builder(iceServer.urls);
-                    if (iceServer.username != null) { builder.setUsername(iceServer.username); }
-                    if (iceServer.credential != null) { builder.setPassword(iceServer.credential); }
-                    iceServers.add(builder.createIceServer());
-                }
-
-                setupPeerConnection(iceServers);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -347,5 +323,26 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onError(SignalingError error) {
         Log.d(TAG, error.errorCode);
+    }
+
+    @Override
+    public void onWebRTCSignalingMessage(SignalingMessageUnion message) {
+        if (message.isDescription()) {
+            setRemoteDescription(message.getDescription().description);
+        }
+
+        if (message.isCandidate()) {
+            addIceCandidate(message.getCandidate().candidate);
+        }
+    }
+
+    @Override
+    public void onError(Exception error) {
+        Log.d(TAG, error.toString());
+    }
+
+    @Override
+    public void onSetupDone(List<SignalingIceServer> iceServers) {
+        setupPeerConnection(iceServers);
     }
 }

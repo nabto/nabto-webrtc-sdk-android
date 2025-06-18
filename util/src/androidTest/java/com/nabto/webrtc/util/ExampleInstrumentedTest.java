@@ -15,6 +15,8 @@ import static org.junit.Assert.*;
 
 import com.nabto.webrtc.SignalingClientFactory;
 
+import java.util.Optional;
+
 /**
  * Instrumented test, which will execute on an Android device.
  *
@@ -39,7 +41,7 @@ public class ExampleInstrumentedTest {
         try (var client = SignalingClientFactory.createSignalingClient(opts)) {
             var f = client.connect();
             f.get();
-            MessageSigner signer = new JWTMessageSigner("MySecret", "default");
+            MessageSigner signer = new JWTMessageSigner("MySecret", Optional.of("default"));
             var signed = signer.signMessage(new SignalingSetupRequest().toJson());
             client.sendMessage(signed);
             Thread.sleep(3000);
@@ -50,7 +52,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void testSharedSecretSignMessage() throws JSONException {
-        MessageSigner signer = new JWTMessageSigner("MySecret", "default");
+        MessageSigner signer = new JWTMessageSigner("MySecret", Optional.of("default"));
         var input = new JSONObject();
         input.put("foo", "bar");
         var signed = signer.signMessage(input);
