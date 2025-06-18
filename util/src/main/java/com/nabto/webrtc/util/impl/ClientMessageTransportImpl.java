@@ -77,10 +77,10 @@ public class ClientMessageTransportImpl implements MessageTransport {
             var verified = this.messageSigner.verifyMessage(message);
             var decoded = SignalingMessageUnion.fromJson(verified);
             if (state == State.SETUP) {
-                if (decoded.isCreateResponse()) {
-                    var createResponse = decoded.getCreateResponse();
+                if (decoded.isSetupResponse()) {
+                    var setupResponse = decoded.getSetupResponse();
                     this.state = State.SIGNALING;
-                    emitSetupDone(createResponse.iceServers);
+                    emitSetupDone(setupResponse.iceServers);
                     return;
                 }
             } else if (state == State.SIGNALING) {

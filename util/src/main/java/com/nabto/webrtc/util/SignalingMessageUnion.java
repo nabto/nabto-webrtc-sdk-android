@@ -9,8 +9,8 @@ import java.io.IOException;
 
 public class SignalingMessageUnion {
     private SignalingCandidate candidate = null;
-    private SignalingSetupRequest createRequest = null;
-    private SignalingSetupResponse createResponse = null;
+    private SignalingSetupRequest setupRequest = null;
+    private SignalingSetupResponse setupResponse = null;
     private SignalingDescription description = null;
 
     public static SignalingMessageUnion fromJson(JSONObject json) throws IOException {
@@ -47,12 +47,12 @@ public class SignalingMessageUnion {
         return candidate != null;
     }
 
-    public boolean isCreateRequest() {
-        return createRequest != null;
+    public boolean isSetupRequest() {
+        return setupRequest != null;
     }
 
-    public boolean isCreateResponse() {
-        return createResponse != null;
+    public boolean isSetupResponse() {
+        return setupResponse != null;
     }
 
     public boolean isDescription() {
@@ -63,12 +63,12 @@ public class SignalingMessageUnion {
         return candidate;
     }
 
-    public SignalingSetupRequest getCreateRequest() {
-        return createRequest;
+    public SignalingSetupRequest getSetupRequest() {
+        return setupRequest;
     }
 
-    public SignalingSetupResponse getCreateResponse() {
-        return createResponse;
+    public SignalingSetupResponse getSetupResponse() {
+        return setupResponse;
     }
 
     public SignalingDescription getDescription() {
@@ -79,12 +79,12 @@ public class SignalingMessageUnion {
         this.candidate = candidate;
     }
 
-    public void setSetupRequest(@NonNull SignalingSetupRequest createRequest) {
-        this.createRequest = createRequest;
+    public void setSetupRequest(@NonNull SignalingSetupRequest setupRequest) {
+        this.setupRequest = setupRequest;
     }
 
-    public void setSetupResponse(@NonNull SignalingSetupResponse createResponse) {
-        this.createResponse = createResponse;
+    public void setSetupResponse(@NonNull SignalingSetupResponse setupResponse) {
+        this.setupResponse = setupResponse;
     }
 
     public void setDescription(@NonNull SignalingDescription description) {
