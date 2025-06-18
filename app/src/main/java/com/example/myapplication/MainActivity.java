@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements
     boolean ignoreOffer = false;
 
     // Nabto signaling
-    MessageSigner signer = new JWTMessageSigner(sharedSecret);
     SignalingClient client;
     MessageTransport messageTransport;
 
