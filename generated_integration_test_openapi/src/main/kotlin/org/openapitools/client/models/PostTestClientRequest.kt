@@ -24,6 +24,7 @@ import com.squareup.moshi.JsonClass
  *
  * @param failHttp 
  * @param failWs 
+ * @param endpointUrl 
  * @param extraClientConnectResponseData 
  */
 
@@ -35,6 +36,9 @@ data class PostTestClientRequest (
 
     @Json(name = "failWs")
     val failWs: kotlin.Boolean? = null,
+
+    @Json(name = "endpointUrl")
+    val endpointUrl: kotlin.String? = null,
 
     @Json(name = "extraClientConnectResponseData")
     val extraClientConnectResponseData: kotlin.Boolean? = null

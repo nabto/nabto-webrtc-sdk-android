@@ -50,6 +50,34 @@ public interface SignalingClient extends AutoCloseable {
         void onError(SignalingError error);
     }
 
+    class AbstractObserver implements Observer {
+
+        @Override
+        public void onConnectionStateChange(SignalingConnectionState newState) {
+
+        }
+
+        @Override
+        public void onMessage(JSONObject message) {
+
+        }
+
+        @Override
+        public void onChannelStateChange(SignalingChannelState newState) {
+
+        }
+
+        @Override
+        public void onConnectionReconnect() {
+
+        }
+
+        @Override
+        public void onError(SignalingError error) {
+
+        }
+    }
+
     /**
      * Asynchronously attempt to make an anonymous connection to the signaling service.
      * @return {@link CompletionStage} that will be completed when the connection is established or an error occurs.
