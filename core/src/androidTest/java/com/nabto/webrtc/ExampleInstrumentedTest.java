@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 import com.nabto.webrtc.impl.Backend;
 import java.util.concurrent.ExecutionException;
+import org.openapitools.client.apis.DefaultApi;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -30,5 +31,6 @@ public class ExampleInstrumentedTest {
         var future = backend.getIceServers();
         var iceServers = future.get();
         assertEquals("test", iceServers);
+
     }
 }

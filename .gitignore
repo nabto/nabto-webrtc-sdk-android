@@ -22,3 +22,5 @@ app/options.properties
 *.ipr
 *.iws
 .idea/
+build
+node_modules/
