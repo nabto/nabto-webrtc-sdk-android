@@ -15,7 +15,6 @@ import com.nabto.webrtc.util.ClientMessageTransport;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingClientFactory;
-import com.nabto.webrtc.Throwable;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
@@ -311,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onError(Throwable error) {
-        Log.d(TAG, error.errorCode);
+        Log.d(TAG, error.toString());
     }
 
     @Override
