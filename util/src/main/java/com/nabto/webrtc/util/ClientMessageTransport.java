@@ -1,14 +1,8 @@
 package com.nabto.webrtc.util;
 
-import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
-import com.nabto.webrtc.SignalingConnectionState;
-import com.nabto.webrtc.SignalingError;
 import com.nabto.webrtc.util.impl.ClientMessageTransportImpl;
 
-import org.json.JSONObject;
-
-import java.util.List;
 import java.util.Optional;
 
 

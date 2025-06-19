@@ -25,13 +25,13 @@ class ClientConnectivityTests {
 
     @Test(timeout = 50000)
     fun client_connectivity_test1() = runBlocking {
-        signalingClient.connect();
+        signalingClient.start();
         clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED))
     }
 
     @Test()
     fun client_connectivity_test2() = runBlocking {
-        signalingClient.connect();
+        signalingClient.start();
         clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED))
         signalingClient.close();
         clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED, SignalingConnectionState.CLOSED))
@@ -44,8 +44,8 @@ class ClientConnectivityTestsFailOptions {
     fun client_connectivity_test3() = runBlocking {
         val clientTestInstance = createClientTestInstance(ClientTestInstanceOptions(failHttp = true))
         val signalingClient = clientTestInstance.createSignalingClient();
-        signalingClient.connect();
+        signalingClient.start();
         clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.FAILED));
-        //assertEquals(1, clientTestInstance.observedErrors.size);
+        assertEquals(1, clientTestInstance.observedErrors.size);
     }
 }

@@ -114,30 +114,10 @@ public class ClientMessageTransportImpl implements MessageTransport {
     }
 
     private void start() {
-        this.client.addObserver(new SignalingClient.Observer() {
-            @Override
-            public void onConnectionStateChange(SignalingConnectionState newState) {
-
-            }
-
+        this.client.addObserver(new SignalingClient.AbstractObserver() {
             @Override
             public void onMessage(JSONObject message) {
                 handleMessage(message);
-            }
-
-            @Override
-            public void onChannelStateChange(SignalingChannelState newState) {
-
-            }
-
-            @Override
-            public void onConnectionReconnect() {
-
-            }
-
-            @Override
-            public void onError(SignalingError error) {
-
             }
         });
         this.sendSignalingMessage(new SignalingSetupRequest());
