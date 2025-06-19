@@ -2,10 +2,6 @@ package com.nabto.webrtc;
 
 import org.json.JSONObject;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Future;
-
 /**
  * SignalingClient is responsible for creating a signaling connection through
  * the Nabto Signaling Service for WebRTC.
@@ -47,7 +43,7 @@ public interface SignalingClient extends AutoCloseable {
          * @param error The error that occurred.
          *
          */
-        void onError(SignalingError error);
+        void onError(Throwable error);
     }
 
     class AbstractObserver implements Observer {
@@ -73,16 +69,15 @@ public interface SignalingClient extends AutoCloseable {
         }
 
         @Override
-        public void onError(SignalingError error) {
+        public void onError(Throwable error) {
 
         }
     }
 
     /**
-     * Asynchronously attempt to make an anonymous connection to the signaling service.
-     * @return {@link CompletionStage} that will be completed when the connection is established or an error occurs.
+     * Start the signaling client, if an error occurs onError is called and the state is set to FAILED.
      */
-    CompletableFuture<Void> connect();
+    void start();
 
     /**
      * Get the current state of the Signaling Connection

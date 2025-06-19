@@ -60,7 +60,11 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
-    public CompletableFuture<Void> connect() {
+    public void start() {
+        this.connect();
+    }
+
+    private CompletableFuture<Void> connect() {
         var future = new CompletableFuture<Void>();
         if (connectionState != SignalingConnectionState.NEW) {
             future.completeExceptionally(new IllegalStateException("SignalingClient.connect has already been called previously!"));
@@ -87,6 +91,7 @@ public class SignalingClientImpl implements SignalingClient {
                 future.complete(null);
             } else {
                 setConnectionState(SignalingConnectionState.FAILED);
+                this.handleError(ex);
                 future.completeExceptionally(ex);
             }
         });
@@ -224,7 +229,7 @@ public class SignalingClientImpl implements SignalingClient {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(java.lang.Throwable t) {
                 if (isReconnecting) {
                     waitReconnect();
                 }
@@ -256,7 +261,7 @@ public class SignalingClientImpl implements SignalingClient {
         setChannelState(SignalingChannelState.DISCONNECTED);
     }
 
-    public void handleError(SignalingError error) {
+    public void handleError(java.lang.Throwable error) {
         if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
             return;
         }

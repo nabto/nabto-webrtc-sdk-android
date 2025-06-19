@@ -25,7 +25,7 @@ public fun createClientTestInstance(options: ClientTestInstanceOptions = ClientT
 
 public class ClientTestInstance(private val config: PostTestClient200Response) : AutoCloseable {
     val observedConnectionStates = mutableListOf<SignalingConnectionState>(); // List<SignalingConnectionState>();
-    val observedErrors = mutableListOf<SignalingError>(); // List<SignalingConnectionState>();
+    val observedErrors = mutableListOf<Throwable>(); // List<SignalingConnectionState>();
     private val stateChannel = Channel<SignalingConnectionState>(Channel.UNLIMITED)
     public fun createSignalingClient() : SignalingClient {
         val client = SignalingClientFactory.createSignalingClient(SignalingClientFactory.Options( ).setProductId(this.config.productId).setDeviceId(this.config.deviceId).setEndpointUrl(
@@ -36,7 +36,7 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
                 stateChannel.trySend(newState);
             }
 
-            override fun onError(error: SignalingError) {
+            override fun onError(error: Throwable) {
                 observedErrors.add(error);
             }
         });

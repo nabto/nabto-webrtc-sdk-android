@@ -1,8 +1,6 @@
 package com.example.myapplication;
 
 
-import com.example.myapplication.BuildConfig;
-
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,18 +12,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.nabto.webrtc.SignalingConnectionState;
 import com.nabto.webrtc.util.ClientMessageTransport;
-import com.nabto.webrtc.util.JWTMessageSigner;
-import com.nabto.webrtc.util.MessageSigner;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingClientFactory;
-import com.nabto.webrtc.SignalingError;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
 import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.SignalingMessageUnion;
-import com.nabto.webrtc.util.SignalingSetupRequest;
 
 import org.json.JSONObject;
 import org.webrtc.DataChannel;
@@ -43,8 +37,6 @@ import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.VideoTrack;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -127,11 +119,7 @@ public class MainActivity extends AppCompatActivity implements
         messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret, Optional.empty());
         messageTransport.addObserver(this);
         client.addObserver(this);
-        client.connect().whenComplete((res, ex) -> {
-            if (ex == null) {
-                onClientConnected();
-            }
-        });
+        client.start();
     }
 
     private void onClientConnected() {
@@ -321,8 +309,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onError(SignalingError error) {
-        Log.d(TAG, error.errorCode);
+    public void onError(Throwable error) {
+        Log.d(TAG, error.toString());
     }
 
     @Override

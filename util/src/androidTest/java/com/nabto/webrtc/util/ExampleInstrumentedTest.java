@@ -1,7 +1,6 @@
 package com.nabto.webrtc.util;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,7 +38,7 @@ public class ExampleInstrumentedTest {
                 .setDeviceId("wd-fxb4zxg7nyf7sf3w");
 
         try (var client = SignalingClientFactory.createSignalingClient(opts)) {
-            var f = client.connect();
+            var f = client.start();
             f.get();
             MessageSigner signer = new JWTMessageSigner("MySecret", Optional.of("default"));
             var signed = signer.signMessage(new SignalingSetupRequest().toJson());
