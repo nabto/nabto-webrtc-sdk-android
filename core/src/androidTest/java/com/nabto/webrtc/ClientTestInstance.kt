@@ -7,7 +7,7 @@ import org.openapitools.client.apis.DefaultApi
 import org.openapitools.client.models.PostTestClientRequest
 import org.openapitools.client.models.PostTestClient200Response
 
-val endpointUrl =  "http://192.168.1.128:13745";
+val endpointUrl = BuildConfig.INTEGRATION_TEST_SERVER_URL;
 
 data class ClientTestInstanceOptions(
     val failHttp: Boolean = false,

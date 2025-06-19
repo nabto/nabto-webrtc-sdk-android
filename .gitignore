@@ -24,3 +24,4 @@ app/options.properties
 .idea/
 build
 node_modules/
+project.properties.local
