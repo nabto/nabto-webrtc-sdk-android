@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 def optionsFile = rootProject.file("app/options.properties")
@@ -45,6 +46,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
 }
 
 dependencies {
@@ -56,6 +60,7 @@ dependencies {
     implementation project(':util')
     implementation libs.stream.webrtc.android
     implementation libs.stream.webrtc.android.ui
+    implementation libs.core.ktx
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
