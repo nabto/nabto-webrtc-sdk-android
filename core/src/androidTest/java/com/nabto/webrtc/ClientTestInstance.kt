@@ -24,6 +24,7 @@ public fun createClientTestInstance(options: ClientTestInstanceOptions = ClientT
 }
 
 public class ClientTestInstance(private val config: PostTestClient200Response) : AutoCloseable {
+    var api = DefaultApi(endpointUrl);
     val observedConnectionStates = mutableListOf<SignalingConnectionState>(); // List<SignalingConnectionState>();
     val observedErrors = mutableListOf<Throwable>(); // List<SignalingConnectionState>();
     private val stateChannel = Channel<SignalingConnectionState>(Channel.UNLIMITED)
@@ -41,6 +42,10 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
             }
         });
         return client;
+    }
+
+    public suspend fun closeWebsocket() {
+        api.postTestClientByTestIdDisconnectClient(this.config.testId);
     }
 
     public suspend fun waitConnectionStates(states: List<SignalingConnectionState>, timeoutMillis: Long = 1000) {
@@ -65,7 +70,6 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     }
 
     override fun close() {
-        var api = DefaultApi(endpointUrl);
         api.deleteTestClientByTestId(this.config.testId);
     }
 }

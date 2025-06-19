@@ -56,5 +56,13 @@ class ClientConnectivityTestsFailOptions {
         clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.FAILED));
         assertEquals(1, clientTestInstance.observedErrors.size);
     }
-
+    @Test(timeout = 5000)
+    fun client_connectivity_test5() = runBlocking {
+        val clientTestInstance = createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED));
+        clientTestInstance.closeWebsocket();
+        clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED, SignalingConnectionState.WAIT_RETRY, SignalingConnectionState.CONNECTING, SignalingConnectionState.CONNECTED), 4000);
+    }
 }

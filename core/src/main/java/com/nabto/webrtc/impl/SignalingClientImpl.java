@@ -9,8 +9,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 public class SignalingClientImpl implements SignalingClient {
@@ -39,6 +49,8 @@ public class SignalingClientImpl implements SignalingClient {
     private List<SignalingClient.Observer> observers = new ArrayList<>();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
+
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     public SignalingClientImpl(String endpointUrl, String productId, String deviceId, boolean requireOnline, String accessToken) {
         if (productId.isEmpty() || deviceId.isEmpty()) {
@@ -140,6 +152,7 @@ public class SignalingClientImpl implements SignalingClient {
         webSocket.close();
         setConnectionState(SignalingConnectionState.CLOSED);
         setChannelState(SignalingChannelState.DISCONNECTED);
+        scheduledExecutorService.shutdown();
     }
 
     private void setConnectionState(SignalingConnectionState state) {
@@ -180,7 +193,12 @@ public class SignalingClientImpl implements SignalingClient {
         setConnectionState(SignalingConnectionState.WAIT_RETRY);
         var reconnectWait = 1000 * (1 << reconnectCounter);
         reconnectCounter++;
-        new android.os.Handler().postDelayed(this::reconnect, reconnectWait);
+        scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                reconnect();
+            }
+        }, reconnectWait, TimeUnit.MILLISECONDS);
     }
 
     private void openWebsocketConnection(String signalingUrl) {
