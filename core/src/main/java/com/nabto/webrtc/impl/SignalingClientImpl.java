@@ -86,6 +86,7 @@ public class SignalingClientImpl implements SignalingClient {
                 openWebsocketConnection(res.signalingUrl);
                 future.complete(null);
             } else {
+                setConnectionState(SignalingConnectionState.FAILED);
                 future.completeExceptionally(ex);
             }
         });
