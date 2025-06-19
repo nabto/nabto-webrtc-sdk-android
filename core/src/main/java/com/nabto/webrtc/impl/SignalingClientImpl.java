@@ -90,7 +90,6 @@ public class SignalingClientImpl implements SignalingClient {
                 openWebsocketConnection(res.signalingUrl);
                 future.complete(null);
             } else {
-                setConnectionState(SignalingConnectionState.FAILED);
                 this.handleError(ex);
                 future.completeExceptionally(ex);
             }
@@ -230,8 +229,12 @@ public class SignalingClientImpl implements SignalingClient {
 
             @Override
             public void onFailure(java.lang.Throwable t) {
-                if (isReconnecting) {
-                    waitReconnect();
+                if (openedWebSockets == 0) {
+                    handleError(t);
+                } else {
+                    if (isReconnecting) {
+                        waitReconnect();
+                    }
                 }
             }
         });
@@ -265,6 +268,7 @@ public class SignalingClientImpl implements SignalingClient {
         if (channelState == SignalingChannelState.CLOSED || channelState == SignalingChannelState.FAILED) {
             return;
         }
+        setConnectionState(SignalingConnectionState.FAILED);
         observers.forEach((obs) -> obs.onError(error));
     }
 
