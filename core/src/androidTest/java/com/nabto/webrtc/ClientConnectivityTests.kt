@@ -3,6 +3,7 @@ package com.nabto.webrtc
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,10 +43,105 @@ class ClientConnectivityTests {
 class ClientConnectivityTestsFailOptions {
     @Test(timeout = 5000)
     fun client_connectivity_test3() = runBlocking {
-        val clientTestInstance = createClientTestInstance(ClientTestInstanceOptions(failHttp = true))
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(failHttp = true))
         val signalingClient = clientTestInstance.createSignalingClient();
         signalingClient.start();
-        clientTestInstance.waitConnectionStates(listOf(SignalingConnectionState.CONNECTING, SignalingConnectionState.FAILED));
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.FAILED
+            )
+        );
         assertEquals(1, clientTestInstance.observedErrors.size);
     }
+
+    @Test(timeout = 5000)
+    fun client_connectivity_test4() = runBlocking {
+        val clientTestInstance = createClientTestInstance(ClientTestInstanceOptions(failWs = true))
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.FAILED
+            )
+        );
+        assertEquals(1, clientTestInstance.observedErrors.size);
+    }
+
+    @Test(timeout = 5000)
+    fun client_connectivity_test5() = runBlocking {
+        val clientTestInstance = createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.closeWebsocket();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED,
+                SignalingConnectionState.WAIT_RETRY,
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            ), 4000
+        );
+    }
+
+    @Test(timeout = 5000)
+    fun client_connectivity_test6() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(extraClientConnectResponseData = true))
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+    }
+    @Test(timeout = 60000)
+    fun client_connectivity_test7() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.sendUnknwonWebsocketMessageType();
+        clientTestInstance.connectDevice();
+        val messages = listOf(TestObject());
+        clientTestInstance.sendMessageToClient(messages)
+        clientTestInstance.waitReceivedMessages(messages)
+    }
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test8() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.sendNewFieldInKnownMessageType();
+        clientTestInstance.connectDevice();
+        val messages = listOf(TestObject());
+        clientTestInstance.sendMessageToClient(messages)
+        clientTestInstance.waitReceivedMessages(messages)
+    }
+
 }

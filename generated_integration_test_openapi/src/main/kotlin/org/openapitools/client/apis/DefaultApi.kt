@@ -791,6 +791,81 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun postTestClientByTestIdSendNewFieldInKnownMessageType(testId: kotlin.String, body: kotlin.Any) : kotlin.Any {
+        val localVarResponse = postTestClientByTestIdSendNewFieldInKnownMessageTypeWithHttpInfo(testId = testId, body = body)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.Any
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @param testId 
+     * @param body 
+     * @return ApiResponse<kotlin.Any?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun postTestClientByTestIdSendNewFieldInKnownMessageTypeWithHttpInfo(testId: kotlin.String, body: kotlin.Any) : ApiResponse<kotlin.Any?> {
+        val localVariableConfig = postTestClientByTestIdSendNewFieldInKnownMessageTypeRequestConfig(testId = testId, body = body)
+
+        return request<kotlin.Any, kotlin.Any>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation postTestClientByTestIdSendNewFieldInKnownMessageType
+     *
+     * @param testId 
+     * @param body 
+     * @return RequestConfig
+     */
+    fun postTestClientByTestIdSendNewFieldInKnownMessageTypeRequestConfig(testId: kotlin.String, body: kotlin.Any) : RequestConfig<kotlin.Any> {
+        val localVariableBody = body
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json, multipart/form-data"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/test/client/{testId}/send-new-field-in-known-message-type".replace("{"+"testId"+"}", encodeURIComponent(testId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = false,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * 
+     * 
+     * @param testId 
+     * @param body 
+     * @return kotlin.Any
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
     fun postTestClientByTestIdSendNewMessageType(testId: kotlin.String, body: kotlin.Any) : kotlin.Any {
         val localVarResponse = postTestClientByTestIdSendNewMessageTypeWithHttpInfo(testId = testId, body = body)
 
