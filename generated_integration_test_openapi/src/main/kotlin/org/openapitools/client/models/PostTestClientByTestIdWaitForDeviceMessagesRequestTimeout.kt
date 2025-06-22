@@ -22,18 +22,10 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param messages 
- * @param timeout 
  */
 
 
-data class PostTestClientByTestIdWaitForDeviceMessagesRequest (
-
-    @Json(name = "messages")
-    val messages: kotlin.collections.List<kotlin.Any>,
-
-    @Json(name = "timeout")
-    val timeout: kotlin.Double
+class PostTestClientByTestIdWaitForDeviceMessagesRequestTimeout (
 
 ) {
 

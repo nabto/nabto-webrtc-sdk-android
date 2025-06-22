@@ -20,6 +20,7 @@ src/main/kotlin/org/openapitools/client/infrastructure/Serializer.kt
 src/main/kotlin/org/openapitools/client/infrastructure/URIAdapter.kt
 src/main/kotlin/org/openapitools/client/infrastructure/UUIDAdapter.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClient200Response.kt
+src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdGetActiveWebsockets200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdSendDeviceErrorRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdSendDeviceMessagesRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceMessages200Response.kt
@@ -28,6 +29,7 @@ src/main/kotlin/org/openapitools/client/models/PostTestClientRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDevice200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClients200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClientsByClientIdWaitForErrorRequest.kt
+src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClientsByClientIdWaitForMessagesRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostV1ClientConnect200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostV1ClientConnect400Response.kt

@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -24,6 +26,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     private int pongCounter = 0;
     private WebSocket ws = null;
     Observer observer;
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void connect(String endpoint, Observer observer) {
@@ -62,11 +65,14 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     public void checkAlive(int timeout) {
         var currentPongCounter = pongCounter;
         sendPing();
-        new android.os.Handler().postDelayed(() -> {
-            if (currentPongCounter == pongCounter) {
-                observer.onCloseOrError("Ping timeout");
+        scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                if (currentPongCounter == pongCounter) {
+                    observer.onCloseOrError("Ping timeout");
+                }
             }
-        }, timeout);
+        }, 1000, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -149,6 +155,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
         if (ws != null) {
             ws.close(1000, null);
         }
+        scheduledExecutorService.shutdown();
     }
 
     public void sendPing() {

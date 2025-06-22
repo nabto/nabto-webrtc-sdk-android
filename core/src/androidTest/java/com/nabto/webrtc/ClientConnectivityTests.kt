@@ -143,5 +143,31 @@ class ClientConnectivityTestsFailOptions {
         clientTestInstance.sendMessageToClient(messages)
         clientTestInstance.waitReceivedMessages(messages)
     }
-
+    @Test(timeout = 60000)
+    fun client_connectivity_test9() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.dropClientMessages();
+        signalingClient.checkAlive();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED,
+                SignalingConnectionState.WAIT_RETRY,
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED,
+            )
+        );
+        val activeWebSockets : Int = clientTestInstance.getActiveWebSockets().toInt();
+        val one : Int = 1;
+        assertEquals(one, activeWebSockets);
+    }
 }

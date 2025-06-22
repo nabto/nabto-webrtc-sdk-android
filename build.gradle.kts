@@ -17,3 +17,8 @@ openApiGenerate {
     additionalProperties.put("omitGradlePluginVersions", true)
     additionalProperties.put("omitGradleWrapper", true)
 }
+
+// regenerate the output whenever the task is run. Without this no inputs have been changed and it will not regenerate the output.
+tasks.named("openApiGenerate") {
+    outputs.upToDateWhen { false }
+}
