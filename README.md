@@ -12,3 +12,9 @@
 
 1. run the integration test server from https://github.com/nabto/nabto-webrtc-sdk-js/tree/main/integration_test_server
 2. generate openapi test stubs. ./gradlew openApiGenerate this should only be ran if the openapi specification has been updated in the integration test server.
+
+## run integration tests:
+
+1. run the integration test server from above.
+2. specify an url where the integration test server is reachable in project.properties.local
+3. run ./gradlew core:connectedAndroidTest
