@@ -64,5 +64,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.moshi)
+    androidTestImplementation(libs.moshi.kotlin)
     androidTestImplementation(project(":generated_integration_test_openapi"))
 }

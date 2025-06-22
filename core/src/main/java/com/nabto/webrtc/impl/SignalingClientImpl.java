@@ -269,7 +269,7 @@ public class SignalingClientImpl implements SignalingClient {
             receivedMessages.add(reliableMessage);
             handleReceivedMessages();
         } catch (JSONException e) {
-            // @TODO: Logging
+            this.handleError(e);
         }
     }
 
