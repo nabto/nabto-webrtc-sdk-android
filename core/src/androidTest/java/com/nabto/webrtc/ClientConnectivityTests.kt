@@ -124,5 +124,24 @@ class ClientConnectivityTestsFailOptions {
         clientTestInstance.sendMessageToClient(messages)
         clientTestInstance.waitReceivedMessages(messages)
     }
-    
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test8() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.sendNewFieldInKnownMessageType();
+        clientTestInstance.connectDevice();
+        val messages = listOf(TestObject());
+        clientTestInstance.sendMessageToClient(messages)
+        clientTestInstance.waitReceivedMessages(messages)
+    }
+
 }

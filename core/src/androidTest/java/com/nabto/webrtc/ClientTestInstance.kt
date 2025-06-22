@@ -75,6 +75,9 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     public suspend fun sendUnknwonWebsocketMessageType() {
         api.postTestClientByTestIdSendNewMessageType(this.config.testId, Object())
     }
+    public suspend fun sendNewFieldInKnownMessageType() {
+        api.postTestClientByTestIdSendNewFieldInKnownMessageType(this.config.testId, Object())
+    }
 
     public suspend fun sendMessageToClient(messages: List<Any>) {
         api.postTestClientByTestIdSendDeviceMessages(this.config.testId, PostTestClientByTestIdSendDeviceMessagesRequest(messages = messages))

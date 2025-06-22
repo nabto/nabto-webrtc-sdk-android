@@ -24,7 +24,7 @@ import com.squareup.moshi.JsonClass
  *
  * @param failHttp 
  * @param failWs 
- * @param endpointUrl 
+ * @param endpointUrl specify the endpoint url the server returns in the test create response and the websocket url. Format http://<ip>:<port>
  * @param extraClientConnectResponseData 
  */
 
@@ -37,6 +37,7 @@ data class PostTestClientRequest (
     @Json(name = "failWs")
     val failWs: kotlin.Boolean? = null,
 
+    /* specify the endpoint url the server returns in the test create response and the websocket url. Format http://<ip>:<port> */
     @Json(name = "endpointUrl")
     val endpointUrl: kotlin.String? = null,
 
