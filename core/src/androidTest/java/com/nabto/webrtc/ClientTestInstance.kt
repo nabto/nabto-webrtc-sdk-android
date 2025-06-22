@@ -15,6 +15,7 @@ import org.openapitools.client.models.PostTestClientRequest
 import org.openapitools.client.models.PostTestClient200Response
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceMessagesRequest
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessagesRequest
+import java.math.BigDecimal
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 val endpointUrl = BuildConfig.INTEGRATION_TEST_SERVER_URL;
@@ -86,8 +87,22 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     public suspend fun connectDevice() {
         api.postTestClientByTestIdConnectDevice(this.config.testId);
     }
+    public suspend fun disconnectDevice() {
+        api.postTestClientByTestIdDisconnectDevice(this.config.testId);
+    }
 
-    public suspend fun waitConnectionStates(states: List<SignalingConnectionState>, timeoutMillis: Long = 1000) {
+    public suspend fun dropClientMessages() {
+        api.postTestClientByTestIdDropClientMessages(this.config.testId);
+    }
+    public suspend fun dropDeviceMessages() {
+        api.postTestClientByTestIdDropDeviceMessages(this.config.testId);
+    }
+    public suspend fun getActiveWebSockets() : Number {
+        val response = api.postTestClientByTestIdGetActiveWebsockets(this.config.testId, Object());
+        return response.activeWebSockets;
+    }
+
+    public suspend fun waitConnectionStates(states: List<SignalingConnectionState>, timeoutMillis: Long = 10000) {
         if (observedConnectionStates == states) {
             return;
         }
@@ -125,7 +140,7 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    public suspend fun waitReceivedMessages(messages: List<TestObject>, timeoutMillis: Long = 1000) {
+    public suspend fun waitReceivedMessages(messages: List<TestObject>, timeoutMillis: Long = 10000) {
         if (isMessageListsEqual(receviedMessages, messages)) {
             return;
         }
@@ -144,6 +159,10 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
                         "Expected: $messages, Observed: $receviedMessages", e
             )
         }
+    }
+
+    public suspend fun waitForDeviceToReceiveMessages(messages: List<TestObject>, timeoutMillis: Double) {
+        api.postTestClientByTestIdWaitForDeviceMessages(this.config.testId, PostTestClientByTestIdWaitForDeviceMessagesRequest(messages = messages, timeout = timeoutMillis ))
     }
 
     override fun close() {

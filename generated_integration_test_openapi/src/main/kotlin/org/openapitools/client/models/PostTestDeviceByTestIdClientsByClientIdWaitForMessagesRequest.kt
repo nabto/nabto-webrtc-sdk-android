@@ -27,13 +27,13 @@ import com.squareup.moshi.JsonClass
  */
 
 
-data class PostTestClientByTestIdWaitForDeviceMessagesRequest (
+data class PostTestDeviceByTestIdClientsByClientIdWaitForMessagesRequest (
 
     @Json(name = "messages")
     val messages: kotlin.collections.List<kotlin.Any>,
 
     @Json(name = "timeout")
-    val timeout: kotlin.Double
+    val timeout: java.math.BigDecimal
 
 ) {
 
