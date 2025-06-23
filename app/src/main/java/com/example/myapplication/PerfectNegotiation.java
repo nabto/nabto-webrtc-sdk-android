@@ -110,18 +110,21 @@ public class PerfectNegotiation {
 
     private CompletableFuture<Void> handleDescription(SessionDescription description) {
 
-        boolean readyForOffer = !makingOffer &&
-                (pc.signalingState() == PeerConnection.SignalingState.STABLE || isSettingRemoteAnswerPending);
 
-        boolean offerCollision = description.type == SessionDescription.Type.OFFER && !readyForOffer;
-        ignoreOffer = !polite && offerCollision;
+        synchronized (this) {
+            boolean readyForOffer = !makingOffer &&
+                    (pc.signalingState() == PeerConnection.SignalingState.STABLE || isSettingRemoteAnswerPending);
 
-        if (ignoreOffer) {
-            return CompletableFuture.completedFuture(null);
-        }
+            boolean offerCollision = description.type == SessionDescription.Type.OFFER && !readyForOffer;
+            ignoreOffer = !polite && offerCollision;
 
-        if (description.type == SessionDescription.Type.ANSWER) {
-            isSettingRemoteAnswerPending = true;
+            if (ignoreOffer) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            if (description.type == SessionDescription.Type.ANSWER) {
+                isSettingRemoteAnswerPending = true;
+            }
         }
 
         return setRemoteDescription(description)
