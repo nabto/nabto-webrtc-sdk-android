@@ -2,6 +2,8 @@ package com.nabto.webrtc.util;
 
 import androidx.annotation.Nullable;
 
+import com.nabto.webrtc.util.impl.JsonUtil;
+
 import java.io.IOException;
 import java.util.List;
 

@@ -1,6 +1,9 @@
-package com.nabto.webrtc.util;
+package com.nabto.webrtc.util.impl;
 
 import androidx.annotation.NonNull;
+
+import com.nabto.webrtc.util.SignalingCandidate;
+import com.nabto.webrtc.util.SignalingDescription;
 
 import org.json.JSONException;
 import org.json.JSONObject;

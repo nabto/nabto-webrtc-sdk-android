@@ -13,6 +13,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 import com.nabto.webrtc.SignalingClientFactory;
+import com.nabto.webrtc.util.impl.JWTMessageSigner;
+import com.nabto.webrtc.util.impl.MessageSigner;
+import com.nabto.webrtc.util.impl.SignalingSetupRequest;
 
 import java.util.Optional;
 

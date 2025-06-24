@@ -1,22 +1,19 @@
 package com.example.myapplication;
 
-import android.os.Message;
 import android.util.Log;
 
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
-import com.nabto.webrtc.util.SignalingIceServer;
-import com.nabto.webrtc.util.SignalingMessageUnion;
+import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
+import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.PeerConnection;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 /**
  * This file implements the perfect negotiation pattern from https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
@@ -69,7 +66,7 @@ public class PerfectNegotiation {
         this.messageTransport = messageTransport;
     }
 
-    public void onMessage(SignalingMessageUnion msg) {
+    public void onMessage(WebRTCSignalingMessageUnion msg) {
         SignalingDescription description = msg.getDescription();
         SignalingCandidate candidate = msg.getCandidate();
 

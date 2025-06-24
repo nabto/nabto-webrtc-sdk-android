@@ -15,7 +15,8 @@ import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingClientFactory;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
-import com.nabto.webrtc.util.SignalingMessageUnion;
+import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
+import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret, Optional.empty());
         messageTransport.addObserver(new LoggingMessageTransportObserverAdapter() {
             @Override
-            public void onWebRTCSignalingMessage(SignalingMessageUnion message) {
+            public void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
                 super.onWebRTCSignalingMessage(message);
                 perfectNegotiation.onMessage(message);
             }

@@ -1,5 +1,8 @@
 package com.nabto.webrtc.util;
 
+import com.nabto.webrtc.util.impl.SignalingMessage;
+import com.nabto.webrtc.util.impl.SignalingMessageUnion;
+
 import java.util.List;
 
 public interface MessageTransport {
@@ -11,7 +14,7 @@ public interface MessageTransport {
     Mode getMode();
 
     // @todo use Webrtc signaling message union
-    void sendWebRTCSignalingMessage(SignalingMessage message);
+    void sendWebRTCSignalingMessage(WebRTCSignalingMessage message);
 
     public void addObserver(MessageTransport.Observer observer);
     public void removeObserver(MessageTransport.Observer observer);
@@ -24,7 +27,7 @@ public interface MessageTransport {
          * @param message The received message
          */
         // @todo use Webrtc signaling message union
-        void onWebRTCSignalingMessage(SignalingMessageUnion message);
+        void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message);
 
         /**
          * Callback invoked if an error occurs in the message transport.
@@ -42,7 +45,7 @@ public interface MessageTransport {
     class AbstractObserver implements Observer {
 
         @Override
-        public void onWebRTCSignalingMessage(SignalingMessageUnion message) {
+        public void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
 
         }
 

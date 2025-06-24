@@ -2,12 +2,16 @@ package com.nabto.webrtc.util;
 
 import androidx.annotation.Nullable;
 
+import com.nabto.webrtc.util.impl.JsonUtil;
+import com.nabto.webrtc.util.impl.SignalingMessage;
+import com.nabto.webrtc.util.impl.SignalingMessageType;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class SignalingCandidate implements SignalingMessage {
+public class SignalingCandidate implements SignalingMessage, WebRTCSignalingMessage {
     public final String type = SignalingMessageType.CANDIDATE;
     public final Candidate candidate = new Candidate();
 
