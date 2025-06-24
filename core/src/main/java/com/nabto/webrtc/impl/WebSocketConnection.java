@@ -1,5 +1,7 @@
 package com.nabto.webrtc.impl;
 
+import com.nabto.webrtc.SignalingError;
+
 import org.json.JSONObject;
 
 public interface WebSocketConnection {
@@ -61,9 +63,9 @@ public interface WebSocketConnection {
     /**
      * Send an error code to the remote peer.
      * @param connectionId The connection
-     * @param errorCode The error code to send over
+     * @param signalingError The error to send over to the other peer.
      */
-    void sendError(String connectionId, String errorCode, String errorMessage);
+    void sendError(String connectionId, SignalingError signalingError);
 
     /**
      * Check if the websocket is still alive by sending an application layer ping.

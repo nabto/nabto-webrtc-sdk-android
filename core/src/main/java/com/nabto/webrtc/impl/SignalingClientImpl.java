@@ -104,8 +104,8 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
-    public void sendError(String errorCode, String errorMessage) {
-        sendError(connectionId, errorCode, errorMessage);
+    public void sendError(SignalingError signalingError) {
+        sendError(connectionId, signalingError);
     }
 
     @Override
@@ -195,7 +195,7 @@ public class SignalingClientImpl implements SignalingClient {
 
             @Override
             public void onConnectionError(String connectionId, RoutingMessageError error) {
-                var err = new SignalingError(error.errorCode, error.errorMessage, true);
+                var err = new SignalingError(error.errorCode, error.errorMessage);
                 handleError(err);
             }
 
@@ -280,7 +280,7 @@ public class SignalingClientImpl implements SignalingClient {
         webSocket.sendMessage(this.connectionId, message);
     }
 
-    public void sendError(String channelId, String errorCode, String errorMessage) {
-        webSocket.sendError(channelId, errorCode, errorMessage);
+    public void sendError(String channelId, SignalingError signalingError) {
+        webSocket.sendError(channelId, signalingError);
     }
 }

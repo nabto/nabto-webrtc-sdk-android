@@ -104,7 +104,7 @@ public interface SignalingClient extends AutoCloseable {
      * @param errorCode The error code
      * @param errorMessage A string message explaining the error
      */
-    void sendError(String errorCode, String errorMessage);
+    void sendError(SignalingError signalingError);
 
     /**
      * Trigger the underlying SignalingClient to ping the backend to test that the connection is alive.
