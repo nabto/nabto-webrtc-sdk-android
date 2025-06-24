@@ -82,6 +82,8 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
         observer.onOpen();
     }
 
+    // onMessage is invoked from the reader thread on the TCP connection. This means while we are handling a message no further message is received.
+    // we can use this fact to ensure sequentiality if received messages.
     @Override
     public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
         super.onMessage(webSocket, text);

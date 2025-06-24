@@ -19,6 +19,7 @@ public interface SignalingClient extends AutoCloseable {
 
         /**
          * Callback invoked when a message is received from the Camera
+         * Message are received sequentially and a blocking operation blocks further message deliveries and the underlying WebSocket.
          * @param message The received message
          */
         void onMessage(JSONObject message);

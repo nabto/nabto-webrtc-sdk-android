@@ -38,4 +38,22 @@ public interface MessageTransport {
          */
         void onSetupDone(List<SignalingIceServer> iceServers);
     }
+
+    class AbstractObserver implements Observer {
+
+        @Override
+        public void onWebRTCSignalingMessage(SignalingMessageUnion message) {
+
+        }
+
+        @Override
+        public void onError(Exception error) {
+
+        }
+
+        @Override
+        public void onSetupDone(List<SignalingIceServer> iceServers) {
+
+        }
+    }
 }
