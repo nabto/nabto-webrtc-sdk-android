@@ -1,13 +1,13 @@
 package com.nabto.webrtc.util;
 
-public class WebRTCSignalingMessageUnion {
+public class WebrtcSignalingMessageUnion {
     private SignalingCandidate candidate = null;
     private SignalingDescription description = null;
 
-    public WebRTCSignalingMessageUnion(SignalingCandidate candidate) {
+    public WebrtcSignalingMessageUnion(SignalingCandidate candidate) {
         this.candidate = candidate;
     }
-    public WebRTCSignalingMessageUnion(SignalingDescription description) {
+    public WebrtcSignalingMessageUnion(SignalingDescription description) {
         this.description = description;
     }
 
