@@ -1,11 +1,20 @@
-# Nabto Signaling SDK for Android
+# Nabto WebRTC Signaling SDK for Android
+
+This is the Nabto WebRTC Signaling SDK for android. This repository contains the
+core signaling library, utils and an example app.
+
+The libraries in this repository can be used together with the Nabto WebRTC
+Signaling Service and a WebRTC library. This way it is possible to create an
+application which streams video from an IoT device such as a camera.
 
 ## Run the example test application:
 
 1.  copy app/options.properties.default to app/options.properties and insert
     real productid, deviceid and shared secret configuration.
-
 2.  run the app.
+
+A test video feed can be started at https://nabto.github.io/nabto-webrtc-sdk-js/
+
 
 
 ## Build integration tests:
