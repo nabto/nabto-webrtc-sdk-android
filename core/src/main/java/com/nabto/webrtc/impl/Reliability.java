@@ -45,7 +45,7 @@ public class Reliability {
 
     /**
      * This function is triggered from the websocket onmessage. That function is called from the
-     * TCP recvthread so only once routing message will be handled at a time.
+     * TCP recvthread so only one routing message will be handled at a time.
      *
      * @param message
      * @return a JSONObject or null if the operation did not result in a new signaling message.
