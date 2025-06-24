@@ -65,12 +65,9 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     public void checkAlive(int timeout) {
         var currentPongCounter = pongCounter;
         sendPing();
-        scheduledExecutorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                if (currentPongCounter == pongCounter) {
-                    observer.onCloseOrError("Ping timeout");
-                }
+        scheduledExecutorService.schedule(() -> {
+            if (currentPongCounter == pongCounter) {
+                observer.onCloseOrError("Ping timeout");
             }
         }, 1000, TimeUnit.MILLISECONDS);
     }

@@ -41,9 +41,8 @@ public class ExampleInstrumentedTest {
                 .setDeviceId("wd-fxb4zxg7nyf7sf3w");
 
         try (var client = SignalingClientFactory.createSignalingClient(opts)) {
-            var f = client.start();
-            f.get();
-            MessageSigner signer = new JWTMessageSigner("MySecret", Optional.of("default"));
+            client.start();
+            MessageSigner signer = new JWTMessageSigner("MySecret", "default");
             var signed = signer.signMessage(new SignalingSetupRequest().toJson());
             client.sendMessage(signed);
             Thread.sleep(3000);
@@ -54,7 +53,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void testSharedSecretSignMessage() throws JSONException {
-        MessageSigner signer = new JWTMessageSigner("MySecret", Optional.of("default"));
+        MessageSigner signer = new JWTMessageSigner("MySecret", "default");
         var input = new JSONObject();
         input.put("foo", "bar");
         var signed = signer.signMessage(input);

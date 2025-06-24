@@ -30,8 +30,8 @@ public class NoneMessageSigner implements MessageSigner {
         try {
             String type = token.get("type").toString();
             JSONObject message = token.getJSONObject("message");
-            if (type != "NONE") {
-                throw new SignalingError(SignalingError.VERIFICATION_ERROR, MessageFormat.format("Expected a signing message of type NONE but got: {}", type));
+            if (!type.equals("NONE")) {
+                throw new SignalingError(SignalingError.VERIFICATION_ERROR, MessageFormat.format("Expected a signing message of type NONE but got: {0}", type));
             }
             return message;
         } catch (Exception e) {

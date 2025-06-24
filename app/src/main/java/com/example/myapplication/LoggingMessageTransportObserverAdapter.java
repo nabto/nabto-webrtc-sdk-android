@@ -5,7 +5,6 @@ import android.util.Log;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
-import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import java.util.List;
 

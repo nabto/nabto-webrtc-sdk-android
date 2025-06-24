@@ -6,7 +6,6 @@ import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
 import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
-import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.PeerConnection;
@@ -16,17 +15,13 @@ import org.webrtc.SessionDescription;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * This file implements the perfect negotiation pattern from https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
- */
-
-/**
  * Convert an webrtc peer connection SdpObserver to a completeable future.
  */
 class FutureSdpObserver implements SdpObserver {
 
     CompletableFuture<Void> future = new CompletableFuture<>();
 
-    void FutureSdpObserver() {
+    FutureSdpObserver() {
 
     }
 
@@ -50,6 +45,9 @@ class FutureSdpObserver implements SdpObserver {
     }
 }
 
+/**
+ * This class implements the perfect negotiation pattern from <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation">Perfect Negotiation</a>
+ */
 public class PerfectNegotiation {
     final String TAG = "PerfectNegotiation";
     boolean makingOffer = false;
@@ -78,7 +76,7 @@ public class PerfectNegotiation {
                 return null;
             });
         } else if (candidate != null) {
-            var cand = new IceCandidate(candidate.candidate.sdpMid, candidate.candidate.sdpMLineIndex, candidate.candidate.candidate);
+            var cand = new IceCandidate(candidate.candidate.sdpMid, candidate.candidate.getSdpMLineIndex(), candidate.candidate.candidate);
             handleCandidate(cand);
         }
     }
