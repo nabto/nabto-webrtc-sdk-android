@@ -37,7 +37,7 @@ public class JWTMessageSigner implements MessageSigner {
     }
 
     @Override
-    public JSONObject signMessage(JSONObject message) {
+    public synchronized JSONObject signMessage(JSONObject message) {
         if (nextMessageSignSeq != 0 && remoteNonce == null) {
             throw new RuntimeException("Cannot sign the message with sequence number > 1, as we have not yet received a valid message from the remote peer.");
         }
@@ -80,7 +80,7 @@ public class JWTMessageSigner implements MessageSigner {
     }
 
     @Override
-    public JSONObject verifyMessage(JSONObject token) {
+    public synchronized JSONObject verifyMessage(JSONObject token) {
         // TODO validate that this is a message with type JWT.
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setVerificationKey(key)

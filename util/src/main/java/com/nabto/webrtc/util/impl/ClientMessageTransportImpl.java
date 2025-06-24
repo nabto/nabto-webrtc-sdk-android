@@ -1,9 +1,6 @@
 package com.nabto.webrtc.util.impl;
 
-import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
-import com.nabto.webrtc.SignalingConnectionState;
-import com.nabto.webrtc.SignalingError;
 import com.nabto.webrtc.util.JWTMessageSigner;
 import com.nabto.webrtc.util.MessageSigner;
 import com.nabto.webrtc.util.MessageTransport;
@@ -72,6 +69,13 @@ public class ClientMessageTransportImpl implements MessageTransport {
         this.client.sendMessage(signed);
     }
 
+    /**
+     * We will only receive one message at a time from the core signaling client.
+     * This means we do not have to handle a case with concurrent messages and potentially
+     * swapped orders of the messages.
+     *
+     * @param message
+     */
     private void handleMessage(JSONObject message) {
         try {
             var verified = this.messageSigner.verifyMessage(message);
