@@ -43,19 +43,9 @@ public class SignalingError extends RuntimeException {
      */
     public String errorMessage;
 
-    /**
-     * Boolean indicating if this error was generated locally by the SDK or received from the remote peer.
-     */
-    public boolean isRemote;
-
     // Constructors should not be called by the user.
-    public SignalingError(String errorCode, String errorMessage, boolean isRemote) {
+    public SignalingError(String errorCode, String errorMessage) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
-        this.isRemote = isRemote;
-    }
-
-    public SignalingError(String errorCode, String errorMessage) {
-        this(errorCode, errorMessage, false);
     }
 }

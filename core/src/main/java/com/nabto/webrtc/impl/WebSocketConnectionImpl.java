@@ -3,6 +3,8 @@ package com.nabto.webrtc.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.nabto.webrtc.SignalingError;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,20 +46,18 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 channelId,
                 message,
                 false,
-                null,
                 null
         ));
     }
 
     @Override
-    public void sendError(String channelId, String errorCode, String errorMessage) {
+    public void sendError(String channelId, SignalingError signalingError) {
         send(new RoutingMessage(
                 RoutingMessageType.ERROR,
                 channelId,
                 null,
                 false,
-                errorCode,
-                errorMessage
+                signalingError
         ));
     }
 
@@ -163,7 +163,6 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 null,
                 null,
                 false,
-                null,
                 null
         ));
     }
@@ -174,7 +173,6 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 null,
                 null,
                 false,
-                null,
                 null
         ));
     }
@@ -197,9 +195,9 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 case ERROR: {
                     json.put("type", RoutingMessageType.ERROR.text());
                     json.put("channelId", msg.channelId);
-                    json.put("errorCode", msg.errorCode);
-                    if (msg.errorMessage != null) {
-                        json.put("errorMessage", msg.errorMessage);
+                    json.put("errorCode", msg.signalingError.errorCode);
+                    if (msg.signalingError.errorMessage != null) {
+                        json.put("errorMessage", msg.signalingError.errorMessage);
                     }
                     break;
                 }

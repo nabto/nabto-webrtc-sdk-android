@@ -3,8 +3,8 @@ package com.nabto.webrtc.util.impl;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
-import com.nabto.webrtc.util.WebRTCSignalingMessage;
-import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
+import com.nabto.webrtc.util.WebrtcSignalingMessage;
+import com.nabto.webrtc.util.WebrtcSignalingMessageUnion;
 
 import org.json.JSONObject;
 
@@ -54,7 +54,7 @@ public class ClientMessageTransportImpl implements MessageTransport {
     }
 
     @Override
-    public void sendWebRTCSignalingMessage(WebRTCSignalingMessage message) {
+    public void sendWebrtcSignalingMessage(WebrtcSignalingMessage message) {
         sendSignalingMessage(message);
     }
 
@@ -84,11 +84,11 @@ public class ClientMessageTransportImpl implements MessageTransport {
                 }
             } else if (state == State.SIGNALING) {
                 if (decoded.isCandidate()) {
-                    this.emitWebRTCSignalingMessage(new WebRTCSignalingMessageUnion(decoded.getCandidate()));
+                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessageUnion(decoded.getCandidate()));
                     return;
                 }
                 if (decoded.isDescription()) {
-                    this.emitWebRTCSignalingMessage(new WebRTCSignalingMessageUnion(decoded.getDescription()));
+                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessageUnion(decoded.getDescription()));
                     return;
                 }
             }
@@ -106,8 +106,8 @@ public class ClientMessageTransportImpl implements MessageTransport {
         this.observers.forEach( observer -> observer.onSetupDone(iceServers));
     }
 
-    private void emitWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
-        this.observers.forEach( observer -> observer.onWebRTCSignalingMessage(message));
+    private void emitWebrtcSignalingMessage(WebrtcSignalingMessageUnion message) {
+        this.observers.forEach( observer -> observer.onWebrtcSignalingMessage(message));
     }
 
     private void start() {

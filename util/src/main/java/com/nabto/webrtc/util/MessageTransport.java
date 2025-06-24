@@ -11,7 +11,7 @@ public interface MessageTransport {
     Mode getMode();
 
     // @todo use Webrtc signaling message union
-    void sendWebRTCSignalingMessage(WebRTCSignalingMessage message);
+    void sendWebrtcSignalingMessage(WebrtcSignalingMessage message);
 
     public void addObserver(MessageTransport.Observer observer);
     public void removeObserver(MessageTransport.Observer observer);
@@ -24,7 +24,7 @@ public interface MessageTransport {
          * @param message The received message
          */
         // @todo use Webrtc signaling message union
-        void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message);
+        void onWebrtcSignalingMessage(WebrtcSignalingMessageUnion message);
 
         /**
          * Callback invoked if an error occurs in the message transport.
@@ -42,7 +42,7 @@ public interface MessageTransport {
     class AbstractObserver implements Observer {
 
         @Override
-        public void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
+        public void onWebrtcSignalingMessage(WebrtcSignalingMessageUnion message) {
 
         }
 
