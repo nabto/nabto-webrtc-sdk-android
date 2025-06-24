@@ -1,4 +1,4 @@
-package com.nabto.webrtc.util;
+package com.nabto.webrtc.util.impl;
 
 public class SignalingMessageType {
     public static final String DESCRIPTION = "DESCRIPTION";

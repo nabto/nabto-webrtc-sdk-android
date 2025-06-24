@@ -4,14 +4,15 @@ import android.util.Log;
 
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
-import com.nabto.webrtc.util.SignalingMessageUnion;
+import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
+import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import java.util.List;
 
 public class LoggingMessageTransportObserverAdapter implements MessageTransport.Observer {
     final String TAG = "LoggingMessageTransportObserverAdapter";
     @Override
-    public void onWebRTCSignalingMessage(SignalingMessageUnion message) {
+    public void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
         Log.i(TAG, "onWebRTCSignalingMessage");
     }
 

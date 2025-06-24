@@ -1,6 +1,7 @@
-package com.nabto.webrtc.util;
+package com.nabto.webrtc.util.impl;
 
-import org.json.JSONArray;
+import com.nabto.webrtc.util.SignalingIceServer;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

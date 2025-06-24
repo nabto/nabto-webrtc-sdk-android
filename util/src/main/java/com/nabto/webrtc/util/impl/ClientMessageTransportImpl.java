@@ -1,14 +1,10 @@
 package com.nabto.webrtc.util.impl;
 
 import com.nabto.webrtc.SignalingClient;
-import com.nabto.webrtc.util.JWTMessageSigner;
-import com.nabto.webrtc.util.MessageSigner;
 import com.nabto.webrtc.util.MessageTransport;
-import com.nabto.webrtc.util.NoneMessageSigner;
 import com.nabto.webrtc.util.SignalingIceServer;
-import com.nabto.webrtc.util.SignalingMessage;
-import com.nabto.webrtc.util.SignalingMessageUnion;
-import com.nabto.webrtc.util.SignalingSetupRequest;
+import com.nabto.webrtc.util.WebRTCSignalingMessage;
+import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
 
 import org.json.JSONObject;
 
@@ -59,7 +55,7 @@ public class ClientMessageTransportImpl implements MessageTransport {
     }
 
     @Override
-    public void sendWebRTCSignalingMessage(SignalingMessage message) {
+    public void sendWebRTCSignalingMessage(WebRTCSignalingMessage message) {
         sendSignalingMessage(message);
     }
 
@@ -88,8 +84,12 @@ public class ClientMessageTransportImpl implements MessageTransport {
                     return;
                 }
             } else if (state == State.SIGNALING) {
-                if (decoded.isCandidate() || decoded.isDescription()) {
-                    this.emitWebRTCSignalingMessage(decoded);
+                if (decoded.isCandidate()) {
+                    this.emitWebRTCSignalingMessage(new WebRTCSignalingMessageUnion(decoded.getCandidate()));
+                    return;
+                }
+                if (decoded.isDescription()) {
+                    this.emitWebRTCSignalingMessage(new WebRTCSignalingMessageUnion(decoded.getDescription()));
                     return;
                 }
             }
@@ -111,7 +111,7 @@ public class ClientMessageTransportImpl implements MessageTransport {
         });
     }
 
-    private void emitWebRTCSignalingMessage(SignalingMessageUnion message) {
+    private void emitWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {
         this.observers.forEach( observer -> {
             observer.onWebRTCSignalingMessage(message);
         });

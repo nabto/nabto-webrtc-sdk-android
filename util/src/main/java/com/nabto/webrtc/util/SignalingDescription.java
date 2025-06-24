@@ -1,11 +1,15 @@
 package com.nabto.webrtc.util;
 
+import com.nabto.webrtc.util.impl.JsonUtil;
+import com.nabto.webrtc.util.impl.SignalingMessage;
+import com.nabto.webrtc.util.impl.SignalingMessageType;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class SignalingDescription implements SignalingMessage {
+public class SignalingDescription implements SignalingMessage, WebRTCSignalingMessage {
     public final String type = SignalingMessageType.DESCRIPTION;
     public final Description description = new Description();
 

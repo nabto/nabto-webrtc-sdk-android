@@ -1,4 +1,4 @@
-package com.nabto.webrtc.util;
+package com.nabto.webrtc.util.impl;
 
 import com.nabto.webrtc.SignalingError;
 
