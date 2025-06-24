@@ -16,7 +16,6 @@ import com.nabto.webrtc.SignalingClientFactory;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.WebRTCSignalingMessageUnion;
-import com.nabto.webrtc.util.impl.SignalingMessageUnion;
 
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
@@ -38,7 +37,6 @@ import io.getstream.webrtc.android.ui.VideoTextureViewRenderer;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "MyApp";
-    final String endpointUrl = "https://eu.webrtc.nabto.net";
     final String productId = BuildConfig.PRODUCT_ID;
     final String deviceId = BuildConfig.DEVICE_ID;
     final String sharedSecret = BuildConfig.SHARED_SECRET;
@@ -47,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     PeerConnectionFactory peerConnectionFactory = null;
     PeerConnection peerConnection = null;
     PerfectNegotiation perfectNegotiation = null;
-    WebRTCLogger logger = new WebRTCLogger();
     EglBase eglBase = EglBase.create();
     VideoTextureViewRenderer videoView;
 
@@ -96,13 +93,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Connect to Nabto Signaling
         var opts = new SignalingClientFactory.Options()
-                .setEndpointUrl(endpointUrl)
                 .setProductId(productId)
                 .setDeviceId(deviceId);
 
         Log.d(TAG, "Creating signaling client");
         client = SignalingClientFactory.createSignalingClient(opts);
-        messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret, Optional.empty());
+        messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret);
         messageTransport.addObserver(new LoggingMessageTransportObserverAdapter() {
             @Override
             public void onWebRTCSignalingMessage(WebRTCSignalingMessageUnion message) {

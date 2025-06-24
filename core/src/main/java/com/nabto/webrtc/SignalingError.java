@@ -24,6 +24,14 @@ public class SignalingError extends RuntimeException {
      * This can be sent by the device if a client attempts to create a new channel but the device has reached its limit.
      */
     public static final String NO_MORE_CHANNELS = "NO_MORE_CHANNELS";
+    /**
+     * This error code is sent if a channel is rejected based on authentication and/or authorization data.
+     */
+    public static final String ACCESS_DENIED = "ACCESS_DENIED";
+    /**
+     * This error is sent if the device or the client encounters an internal error.
+     */
+    public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
 
     /**
      * The code of the error. If the error is NOT remote, the code will be one of the predefined error codes. If the error IS remote, this can be any string.

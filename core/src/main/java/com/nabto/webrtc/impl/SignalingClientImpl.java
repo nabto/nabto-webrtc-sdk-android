@@ -14,20 +14,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 public class SignalingClientImpl implements SignalingClient {
-    private final Logger logger = Logger.getLogger("SignalingClient");
-
-    private final String endpointUrl;
-    private final String productId;
-    private final String deviceId;
     private final String accessToken;
     private final boolean requireOnline;
     private final Backend backend;
 
     private SignalingChannelState channelState = SignalingChannelState.NEW;
-    private Reliability reliabilityLayer;
+    final private Reliability reliabilityLayer;
 
     private SignalingConnectionState connectionState = SignalingConnectionState.NEW;
     private String connectionId = null;
@@ -35,7 +29,7 @@ public class SignalingClientImpl implements SignalingClient {
     private boolean isReconnecting = false;
     private int reconnectCounter = 0;
     private int openedWebSockets = 0;
-    private Set<Observer> observers = ConcurrentHashMap.newKeySet();
+    final private Set<Observer> observers = ConcurrentHashMap.newKeySet();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
 
@@ -50,9 +44,6 @@ public class SignalingClientImpl implements SignalingClient {
             endpointUrl = "https://" + productId + ".webrtc.nabto.net";
         }
 
-        this.endpointUrl = endpointUrl;
-        this.productId = productId;
-        this.deviceId = deviceId;
         this.requireOnline = requireOnline;
         this.accessToken = accessToken;
 
@@ -133,7 +124,7 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (connectionState == SignalingConnectionState.CLOSED) {
             return;
         }
@@ -182,12 +173,7 @@ public class SignalingClientImpl implements SignalingClient {
         // TODO use jitter
         var reconnectWait = 1000 * (1 << reconnectCounter);
         reconnectCounter++;
-        scheduledExecutorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                reconnect();
-            }
-        }, reconnectWait, TimeUnit.MILLISECONDS);
+        scheduledExecutorService.schedule(this::reconnect, reconnectWait, TimeUnit.MILLISECONDS);
     }
 
     private void openWebsocketConnection(String signalingUrl) {

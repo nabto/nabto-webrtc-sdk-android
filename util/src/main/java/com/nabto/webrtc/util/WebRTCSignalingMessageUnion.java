@@ -1,12 +1,5 @@
 package com.nabto.webrtc.util;
 
-import androidx.annotation.NonNull;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-
 public class WebRTCSignalingMessageUnion {
     private SignalingCandidate candidate = null;
     private SignalingDescription description = null;

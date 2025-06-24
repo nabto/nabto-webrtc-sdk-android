@@ -1,9 +1,6 @@
 package com.nabto.webrtc.impl;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -16,7 +13,7 @@ public class Reliability {
     private final ConcurrentLinkedQueue<ReliabilityData> unackedMessages = new ConcurrentLinkedQueue<>();
     private int recvSeq = 0;
     private int sendSeq = 0;
-    private RoutingMessageSender sender;
+    final private RoutingMessageSender sender;
 
     public Reliability(RoutingMessageSender sender) {
         this.sender = sender;
@@ -47,7 +44,7 @@ public class Reliability {
      * This function is triggered from the websocket onmessage. That function is called from the
      * TCP recvthread so only one routing message will be handled at a time.
      *
-     * @param message
+     * @param message the routing message from the remote peer.
      * @return a JSONObject or null if the operation did not result in a new signaling message.
      */
     public JSONObject handleRoutingMessage(ReliabilityData message) {

@@ -1,8 +1,5 @@
 package com.nabto.webrtc.util;
 
-import com.nabto.webrtc.util.impl.SignalingMessage;
-import com.nabto.webrtc.util.impl.SignalingMessageUnion;
-
 import java.util.List;
 
 public interface MessageTransport {

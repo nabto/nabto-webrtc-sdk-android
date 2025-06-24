@@ -21,6 +21,15 @@ public class SignalingCandidate implements SignalingMessage, WebRTCSignalingMess
         // @TODO: Might be wrong to use the boxed Integer here?
         @Nullable public Integer sdpMLineIndex = null;
         @Nullable public String usernameFragment = null;
+
+        public int getSdpMLineIndex() {
+            // The org.webrtc.IceCandidate constructor needs an sdpMLineIndex, if we do not have one,
+            // return 0, this could be a problem if the implementation is actually relying on the value.
+            if (sdpMLineIndex == null) {
+                return 0;
+            }
+            return sdpMLineIndex;
+        }
     }
 
     public SignalingCandidate(String candidate) {
