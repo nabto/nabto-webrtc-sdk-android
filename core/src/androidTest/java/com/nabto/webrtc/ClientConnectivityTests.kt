@@ -53,6 +53,7 @@ class ClientConnectivityTestsFailOptions {
                 SignalingConnectionState.FAILED
             )
         );
+        clientTestInstance.waitForError();
         assertEquals(1, clientTestInstance.observedErrors.size);
     }
 
