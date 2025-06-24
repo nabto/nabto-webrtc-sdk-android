@@ -47,6 +47,7 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     val receviedMessages = mutableListOf<JSONObject>();
     private val stateChannel = Channel<SignalingConnectionState>(Channel.UNLIMITED)
     private val messageChannel = Channel<JSONObject>(Channel.UNLIMITED)
+    private val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
     @OptIn(ExperimentalStdlibApi::class)
     public fun createSignalingClient() : SignalingClient {
         val client = SignalingClientFactory.createSignalingClient(SignalingClientFactory.Options( ).setProductId(this.config.productId).setDeviceId(this.config.deviceId).setEndpointUrl(
@@ -60,6 +61,7 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
             override fun onError(error: Throwable) {
                 Log.e(TAG, error.toString());
                 observedErrors.add(error);
+                errorChannel.trySend(error);
             }
 
             override fun onMessage(message: JSONObject) {
@@ -157,6 +159,27 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
             throw AssertionError(
                 "Timeout after ${timeoutMillis}ms waiting for messages. " +
                         "Expected: $messages, Observed: $receviedMessages", e
+            )
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    public suspend fun waitForError(timeoutMillis: Long = 10000) {
+        if (observedErrors.size > 0) {
+            return;
+        }
+        // else wait for updates until the desired states has been reached.
+        try {
+            withTimeout(timeoutMillis) {
+                for (error in errorChannel) {
+                    if (observedErrors.size > 0) {
+                       return@withTimeout;
+                    }
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw AssertionError(
+                "Timeout after ${timeoutMillis}ms waiting for errors. "
             )
         }
     }

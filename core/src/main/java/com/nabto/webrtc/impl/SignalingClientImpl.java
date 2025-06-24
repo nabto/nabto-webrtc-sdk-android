@@ -8,24 +8,16 @@ import com.nabto.webrtc.SignalingError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class SignalingClientImpl implements SignalingClient {
     private final Logger logger = Logger.getLogger("SignalingClient");
-    private boolean closed = false;
 
     private final String endpointUrl;
     private final String productId;
@@ -34,19 +26,16 @@ public class SignalingClientImpl implements SignalingClient {
     private final boolean requireOnline;
     private final Backend backend;
 
-    private final List<JSONObject> receivedMessages = new ArrayList<>();
     private SignalingChannelState channelState = SignalingChannelState.NEW;
     private Reliability reliabilityLayer;
 
-    private boolean handlingReceivedMessages = false;
-
     private SignalingConnectionState connectionState = SignalingConnectionState.NEW;
     private String connectionId = null;
-    private String signalingUrl = "";
+    private String websocketSignalingUrl = "";
     private boolean isReconnecting = false;
     private int reconnectCounter = 0;
     private int openedWebSockets = 0;
-    private List<SignalingClient.Observer> observers = new ArrayList<>();
+    private Set<Observer> observers = ConcurrentHashMap.newKeySet();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
 
@@ -72,18 +61,16 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
-    public void start() {
+    public synchronized void start() {
+        if (connectionState != SignalingConnectionState.NEW) {
+            throw new IllegalStateException("SignalingClient.connect has already been called previously!");
+        }
+        setConnectionState(SignalingConnectionState.CONNECTING);
         this.connect();
     }
 
     private CompletableFuture<Void> connect() {
         var future = new CompletableFuture<Void>();
-        if (connectionState != SignalingConnectionState.NEW) {
-            future.completeExceptionally(new IllegalStateException("SignalingClient.connect has already been called previously!"));
-            return future;
-        }
-
-        setConnectionState(SignalingConnectionState.CONNECTING);
         backend.doClientConnect(accessToken).whenComplete((res, ex) -> {
             if (ex == null) {
                 this.connectionId = res.channelId;
@@ -98,7 +85,7 @@ public class SignalingClientImpl implements SignalingClient {
                     }
                 }
 
-                this.signalingUrl = res.signalingUrl;
+                this.websocketSignalingUrl = res.signalingUrl;
                 openWebsocketConnection(res.signalingUrl);
                 future.complete(null);
             } else {
@@ -146,11 +133,12 @@ public class SignalingClientImpl implements SignalingClient {
     }
 
     @Override
-    public void close() throws Exception {
-        if (closed) return;
-        closed = true;
-        webSocket.close();
+    public synchronized void close() throws Exception {
+        if (connectionState == SignalingConnectionState.CLOSED) {
+            return;
+        }
         setConnectionState(SignalingConnectionState.CLOSED);
+        webSocket.close();
         setChannelState(SignalingChannelState.DISCONNECTED);
         scheduledExecutorService.shutdown();
     }
@@ -160,7 +148,7 @@ public class SignalingClientImpl implements SignalingClient {
         observers.forEach(obs -> obs.onConnectionStateChange(this.connectionState));
     }
 
-    public void setChannelState(SignalingChannelState channelState) {
+    private void setChannelState(SignalingChannelState channelState) {
         this.channelState = channelState;
         observers.forEach((obs) -> obs.onChannelStateChange(channelState));
     }
@@ -172,7 +160,7 @@ public class SignalingClientImpl implements SignalingClient {
 
         isReconnecting = true;
         setConnectionState(SignalingConnectionState.CONNECTING);
-        openWebsocketConnection(signalingUrl);
+        openWebsocketConnection(websocketSignalingUrl);
     }
 
     private void waitReconnect() {
@@ -191,6 +179,7 @@ public class SignalingClientImpl implements SignalingClient {
         }
 
         setConnectionState(SignalingConnectionState.WAIT_RETRY);
+        // TODO use jitter
         var reconnectWait = 1000 * (1 << reconnectCounter);
         reconnectCounter++;
         scheduledExecutorService.schedule(new Runnable() {
@@ -266,8 +255,9 @@ public class SignalingClientImpl implements SignalingClient {
         try {
             var parsed = ReliabilityData.fromJson(message);
             var reliableMessage = reliabilityLayer.handleRoutingMessage(parsed);
-            receivedMessages.add(reliableMessage);
-            handleReceivedMessages();
+            for (var obs: observers) {
+                obs.onMessage(reliableMessage);
+            }
         } catch (JSONException e) {
             this.handleError(e);
         }
@@ -297,23 +287,6 @@ public class SignalingClientImpl implements SignalingClient {
         reliabilityLayer.handleConnect();
         if (wasReconnected) {
             observers.forEach(SignalingClient.Observer::onConnectionReconnect);
-        }
-    }
-
-    private void handleReceivedMessages() {
-        if (!handlingReceivedMessages)
-        {
-            if (!receivedMessages.isEmpty()) {
-                handlingReceivedMessages = true;
-                var msg = receivedMessages.remove(0);
-                if (msg != null) {
-                    for (var obs: observers) {
-                        obs.onMessage(msg);
-                    }
-                }
-                handlingReceivedMessages = false;
-                handleReceivedMessages();
-            }
         }
     }
 

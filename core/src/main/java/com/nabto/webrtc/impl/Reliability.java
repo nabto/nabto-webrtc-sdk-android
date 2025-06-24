@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public class Reliability {
@@ -12,7 +13,7 @@ public class Reliability {
     }
 
     private final Logger logger = Logger.getLogger("ReliabilityLayer");
-    private final List<ReliabilityData> unackedMessages = new ArrayList<>();
+    private final ConcurrentLinkedQueue<ReliabilityData> unackedMessages = new ConcurrentLinkedQueue<>();
     private int recvSeq = 0;
     private int sendSeq = 0;
     private RoutingMessageSender sender;
@@ -23,22 +24,31 @@ public class Reliability {
 
     /**
      * Send a reliable message
+     *
      * @param data The message to send
      */
     public void sendReliableMessage(JSONObject data) {
-        var encoded = new ReliabilityData(
-                ReliabilityData.MessageType.DATA,
-                sendSeq,
-                data
-        );
-        sendSeq++;
-        unackedMessages.add(encoded);
+        ReliabilityData encoded;
+        synchronized (this) {
+            encoded = new ReliabilityData(
+                    ReliabilityData.MessageType.DATA,
+                    sendSeq,
+                    data
+            );
+
+            sendSeq++;
+            unackedMessages.add(encoded);
+        }
+
         sender.sendRoutingMessage(encoded);
     }
 
     /**
+     * This function is triggered from the websocket onmessage. That function is called from the
+     * TCP recvthread so only one routing message will be handled at a time.
+     *
      * @param message
-     * @return
+     * @return a JSONObject or null if the operation did not result in a new signaling message.
      */
     public JSONObject handleRoutingMessage(ReliabilityData message) {
         if (message.type == ReliabilityData.MessageType.ACK) {
@@ -65,11 +75,11 @@ public class Reliability {
         return message.data;
     }
 
-    private void handleAck(ReliabilityData ack) {
-        if (!unackedMessages.isEmpty()) {
-            var firstItem = unackedMessages.get(0);
+    private synchronized void handleAck(ReliabilityData ack) {
+        var firstItem = unackedMessages.peek();
+        if (firstItem != null) {
             if (firstItem.seq == ack.seq) {
-                unackedMessages.remove(0);
+                unackedMessages.poll();
             } else {
                 logger.info("Received ACK with seq " + ack.seq + " but the current unacked message has seq " + firstItem.seq);
             }
@@ -78,6 +88,13 @@ public class Reliability {
         }
     }
 
+    /**
+     * In the unlike case where sendUnacked messages are called both from handlePeerConnected and
+     * handleConnect at the same time the messages will still be sent in sequence but with possible
+     * duplicates. The duplicates will be removed at the receiving client. We do not take a lock
+     * here since we are unsure if the sendRoutingMessage can end in a state where it blocks while
+     * it possible waits on available TCP send buffer space.
+     */
     private void sendUnackedMessages() {
         for (var msg : unackedMessages) {
             sender.sendRoutingMessage(msg);
@@ -102,9 +119,5 @@ public class Reliability {
      */
     public void handleConnect() {
         sendUnackedMessages();
-    }
-
-    public boolean isInitialMessage(ReliabilityData message) {
-        return message.type == ReliabilityData.MessageType.DATA && message.seq == 0;
     }
 }

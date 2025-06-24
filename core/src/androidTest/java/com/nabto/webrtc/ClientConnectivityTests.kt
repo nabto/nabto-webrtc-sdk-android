@@ -53,6 +53,7 @@ class ClientConnectivityTestsFailOptions {
                 SignalingConnectionState.FAILED
             )
         );
+        clientTestInstance.waitForError();
         assertEquals(1, clientTestInstance.observedErrors.size);
     }
 
@@ -67,6 +68,7 @@ class ClientConnectivityTestsFailOptions {
                 SignalingConnectionState.FAILED
             )
         );
+        clientTestInstance.waitForError();
         assertEquals(1, clientTestInstance.observedErrors.size);
     }
 
@@ -167,7 +169,6 @@ class ClientConnectivityTestsFailOptions {
             )
         );
         val activeWebSockets : Int = clientTestInstance.getActiveWebSockets().toInt();
-        val one : Int = 1;
-        assertEquals(one, activeWebSockets);
+        assertEquals(1, activeWebSockets);
     }
 }
