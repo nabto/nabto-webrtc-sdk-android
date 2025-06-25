@@ -3,12 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nabto.webrtc.util.org.webrtc"
+    namespace = "com.nabto.webrtc.util"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -22,6 +21,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -29,10 +29,13 @@ android {
 }
 
 dependencies {
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.moshi)
+    implementation(libs.jose4j)
     implementation(project(":core"))
-    implementation(project(":util"))
-    compileOnly(libs.stream.webrtc.android)
-    //implementation(libs.appcompat)
+    runtimeOnly(libs.jjwt.jackson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
