@@ -35,6 +35,8 @@ public interface MessageTransport {
 
         /**
          * Callback invoked when the setup phase of the message transport is concluded.
+         *
+         * @param iceServers A list of ICE servers to use in Peer Connection.
          */
         void onSetupDone(List<SignalingIceServer> iceServers);
     }

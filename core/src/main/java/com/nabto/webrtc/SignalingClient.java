@@ -101,8 +101,7 @@ public interface SignalingClient extends AutoCloseable {
 
     /**
      * Send an error to the other peer.
-     * @param errorCode The error code
-     * @param errorMessage A string message explaining the error
+     * @param signalingError The error to send
      */
     void sendError(SignalingError signalingError);
 
