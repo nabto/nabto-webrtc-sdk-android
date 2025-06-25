@@ -17,6 +17,8 @@ Contents of this repository:
     org.webrtc packages to create a WebRTC connection such as
     https://github.com/GetStream/webrtc-android or
     https://github.com/webrtc-sdk/android
+  * `app`: A simple example app using these libraries to showcase how to make a
+    WebRTC connection to a Nabto WebRTC Signaling Device.
 
 ## Run the example test application:
 
