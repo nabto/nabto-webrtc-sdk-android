@@ -13,6 +13,7 @@ import org.junit.Test
 import org.openapitools.client.apis.DefaultApi
 import org.openapitools.client.models.PostTestClientRequest
 import org.openapitools.client.models.PostTestClient200Response
+import org.openapitools.client.models.PostTestClientByTestIdSendDeviceErrorRequest
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceMessagesRequest
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessagesRequest
 import java.math.BigDecimal
@@ -102,6 +103,10 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     public suspend fun getActiveWebSockets() : Number {
         val response = api.postTestClientByTestIdGetActiveWebsockets(this.config.testId, Object());
         return response.activeWebSockets;
+    }
+
+    public suspend fun deviceSendError(errorCode: String, errorMessage: String) {
+        api.postTestClientByTestIdSendDeviceError(this.config.testId, PostTestClientByTestIdSendDeviceErrorRequest(errorCode = errorCode, errorMessage = errorMessage));
     }
 
     public suspend fun waitConnectionStates(states: List<SignalingConnectionState>, timeoutMillis: Long = 10000) {
