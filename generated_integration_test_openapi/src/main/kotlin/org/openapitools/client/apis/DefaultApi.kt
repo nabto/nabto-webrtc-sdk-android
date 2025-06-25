@@ -23,6 +23,8 @@ import org.openapitools.client.models.PostTestClient200Response
 import org.openapitools.client.models.PostTestClientByTestIdGetActiveWebsockets200Response
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceErrorRequest
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceMessagesRequest
+import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceError200Response
+import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceErrorRequest
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessages200Response
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessagesRequest
 import org.openapitools.client.models.PostTestClientRequest
@@ -997,6 +999,81 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/test/client/{testId}/send-new-message-type".replace("{"+"testId"+"}", encodeURIComponent(testId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = false,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * 
+     * 
+     * @param testId 
+     * @param postTestClientByTestIdWaitForDeviceErrorRequest 
+     * @return PostTestClientByTestIdWaitForDeviceError200Response
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun postTestClientByTestIdWaitForDeviceError(testId: kotlin.String, postTestClientByTestIdWaitForDeviceErrorRequest: PostTestClientByTestIdWaitForDeviceErrorRequest) : PostTestClientByTestIdWaitForDeviceError200Response {
+        val localVarResponse = postTestClientByTestIdWaitForDeviceErrorWithHttpInfo(testId = testId, postTestClientByTestIdWaitForDeviceErrorRequest = postTestClientByTestIdWaitForDeviceErrorRequest)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as PostTestClientByTestIdWaitForDeviceError200Response
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @param testId 
+     * @param postTestClientByTestIdWaitForDeviceErrorRequest 
+     * @return ApiResponse<PostTestClientByTestIdWaitForDeviceError200Response?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun postTestClientByTestIdWaitForDeviceErrorWithHttpInfo(testId: kotlin.String, postTestClientByTestIdWaitForDeviceErrorRequest: PostTestClientByTestIdWaitForDeviceErrorRequest) : ApiResponse<PostTestClientByTestIdWaitForDeviceError200Response?> {
+        val localVariableConfig = postTestClientByTestIdWaitForDeviceErrorRequestConfig(testId = testId, postTestClientByTestIdWaitForDeviceErrorRequest = postTestClientByTestIdWaitForDeviceErrorRequest)
+
+        return request<PostTestClientByTestIdWaitForDeviceErrorRequest, PostTestClientByTestIdWaitForDeviceError200Response>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation postTestClientByTestIdWaitForDeviceError
+     *
+     * @param testId 
+     * @param postTestClientByTestIdWaitForDeviceErrorRequest 
+     * @return RequestConfig
+     */
+    fun postTestClientByTestIdWaitForDeviceErrorRequestConfig(testId: kotlin.String, postTestClientByTestIdWaitForDeviceErrorRequest: PostTestClientByTestIdWaitForDeviceErrorRequest) : RequestConfig<PostTestClientByTestIdWaitForDeviceErrorRequest> {
+        val localVariableBody = postTestClientByTestIdWaitForDeviceErrorRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json, multipart/form-data"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/test/client/{testId}/wait-for-device-error".replace("{"+"testId"+"}", encodeURIComponent(testId.toString())),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = false,

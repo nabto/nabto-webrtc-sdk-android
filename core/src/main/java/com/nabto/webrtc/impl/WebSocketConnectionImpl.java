@@ -100,7 +100,7 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                 var errorJson = json.getJSONObject("error");
                 var errorCode = errorJson.getString("code");
                 var errorMessage = errorJson.optString("message");
-                observer.onConnectionError(channelId, new RoutingMessageError(errorCode, errorMessage));
+                observer.onConnectionError(channelId, new SignalingError(errorCode, errorMessage));
             }
 
             if (Objects.equals(type, RoutingMessageType.PEER_CONNECTED.text())) {
@@ -196,9 +196,12 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
                     json.put("type", RoutingMessageType.ERROR.text());
                     json.put("channelId", msg.channelId);
                     json.put("errorCode", msg.signalingError.errorCode);
+                    JSONObject error = new JSONObject();
+                    error.put("code", msg.signalingError.errorCode);
                     if (msg.signalingError.errorMessage != null) {
-                        json.put("errorMessage", msg.signalingError.errorMessage);
+                        error.put("message", msg.signalingError.errorMessage);
                     }
+                    json.put("error", error);
                     break;
                 }
 

@@ -29,9 +29,9 @@ public interface WebSocketConnection {
         /**
          * Called if the remote peer has sent an error over the connection.
          * @param connectionId The connection
-         * @param error RoutingMessageError object that describes the error.
+         * @param error SignalingError object that describes the error.
          */
-        void onConnectionError(String connectionId, RoutingMessageError error);
+        void onConnectionError(String connectionId, SignalingError error);
 
         /**
          * Called when the websocket connection has been closed or an error occurred.

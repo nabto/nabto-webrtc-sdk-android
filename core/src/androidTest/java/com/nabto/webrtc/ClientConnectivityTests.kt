@@ -171,4 +171,41 @@ class ClientConnectivityTestsFailOptions {
         val activeWebSockets : Int = clientTestInstance.getActiveWebSockets().toInt();
         assertEquals(1, activeWebSockets);
     }
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test10() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.connectDevice();
+        val errorMessage = "Channel closed";
+        clientTestInstance.deviceSendError(SignalingError.CHANNEL_CLOSED, errorMessage);
+        clientTestInstance.waitForError();
+        val error = clientTestInstance.observedErrors[0];
+        assert(error is SignalingError);
+        if (error is SignalingError) {
+            assertEquals(error.errorCode, SignalingError.CHANNEL_CLOSED);
+            assertEquals(error.errorMessage, errorMessage);
+        }
+    }
+    @Test(timeout = 60000)
+    fun client_connectivity_test11() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.connectDevice();
+        signalingClient.close();
+        val error = clientTestInstance.waitForDeviceToReceiveError(1000.0);
+        assert(error != null);
+        assertEquals(SignalingError.CHANNEL_CLOSED, error?.errorCode);
+        assertEquals("The channel has been closed by the application.", error?.errorMessage);
+    }
 }

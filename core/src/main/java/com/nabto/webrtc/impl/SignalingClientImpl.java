@@ -100,12 +100,18 @@ public class SignalingClientImpl implements SignalingClient {
 
     @Override
     public void sendMessage(JSONObject msg) {
-        reliabilityLayer.sendReliableMessage(msg);
+        if (connectionState != SignalingConnectionState.FAILED && connectionState != SignalingConnectionState.CLOSED) {
+            reliabilityLayer.sendReliableMessage(msg);
+        } else {
+            throw new RuntimeException("trying to send a message in a closed or failed state.");
+        }
     }
 
     @Override
     public void sendError(SignalingError signalingError) {
-        sendError(connectionId, signalingError);
+        if (connectionState != SignalingConnectionState.FAILED && connectionState != SignalingConnectionState.CLOSED) {
+            sendError(connectionId, signalingError);
+        }
     }
 
     @Override
@@ -127,6 +133,9 @@ public class SignalingClientImpl implements SignalingClient {
     public synchronized void close() {
         if (connectionState == SignalingConnectionState.CLOSED) {
             return;
+        }
+        if (connectionState != SignalingConnectionState.FAILED) {
+            sendError(new SignalingError(SignalingError.CHANNEL_CLOSED, "The channel has been closed by the application."));
         }
         setConnectionState(SignalingConnectionState.CLOSED);
         webSocket.close();
@@ -194,9 +203,8 @@ public class SignalingClientImpl implements SignalingClient {
             }
 
             @Override
-            public void onConnectionError(String connectionId, RoutingMessageError error) {
-                var err = new SignalingError(error.errorCode, error.errorMessage);
-                handleError(err);
+            public void onConnectionError(String connectionId, SignalingError error) {
+                handleError(error);
             }
 
             @Override
