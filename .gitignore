@@ -25,3 +25,4 @@ app/options.properties
 build
 node_modules/
 project.properties.local
+*.salive
