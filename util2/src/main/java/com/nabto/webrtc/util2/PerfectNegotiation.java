@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.nabto.webrtc.util2;
 
 import android.util.Log;
 
