@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.nabto.webrtc.util.org.webrtc;
 
 import android.util.Log;
 
@@ -15,7 +15,7 @@ import org.webrtc.SessionDescription;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Convert an webrtc peer connection SdpObserver to a completeable future.
+ * Convert an WebRTC peer connection SdpObserver to a completeable future.
  */
 class FutureSdpObserver implements SdpObserver {
 

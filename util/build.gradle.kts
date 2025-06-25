@@ -1,37 +1,15 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-}
-
-val props = Properties()
-
-rootProject.file("project.properties").takeIf { it.exists() }?.inputStream()?.use {
-    props.load(it)
-}
-
-rootProject.file("project.properties.local").takeIf { it.exists() }?.inputStream()?.use {
-    props.load(it) // override
 }
 
 android {
-    namespace = "com.nabto.webrtc"
+    namespace = "com.nabto.webrtc.util"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    buildFeatures {
-        buildConfig = true
-    }
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
-        val integrationTestServerUrl: String = props.getProperty("integrationTestServerUrl");
-
-        buildConfigField("String", "INTEGRATION_TEST_SERVER_URL", "\"$integrationTestServerUrl\"")
     }
 
     buildTypes {
@@ -48,23 +26,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
-    kotlinOptions {
-        jvmTarget = libs.versions.android.kotlinJvmTarget.get()
-    }
 }
 
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.okhttp)
     implementation(libs.moshi)
-    androidTestImplementation(libs.core.ktx)
+    implementation(libs.jose4j)
+    implementation(project(":core"))
+    runtimeOnly(libs.jjwt.jackson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.moshi)
-    androidTestImplementation(libs.moshi.kotlin)
-    androidTestImplementation(project(":generated_integration_test_openapi"))
 }
