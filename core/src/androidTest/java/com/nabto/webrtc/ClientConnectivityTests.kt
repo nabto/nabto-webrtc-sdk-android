@@ -205,6 +205,7 @@ class ClientConnectivityTestsFailOptions {
         signalingClient.close();
         val error = clientTestInstance.waitForDeviceToReceiveError(1000.0);
         assert(error != null);
-        assertEquals(error?.errorCode, SignalingError.CHANNEL_CLOSED);
+        assertEquals(SignalingError.CHANNEL_CLOSED, error?.errorCode);
+        assertEquals("The channel has been closed by the application.", error?.errorMessage);
     }
 }
