@@ -45,6 +45,7 @@ public class SignalingError extends RuntimeException {
 
     // Constructors should not be called by the user.
     public SignalingError(String errorCode, String errorMessage) {
+        super(errorMessage!=null?errorMessage:errorCode);
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }

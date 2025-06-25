@@ -2,7 +2,7 @@ package com.nabto.webrtc.util;
 
 import java.util.List;
 
-public interface MessageTransport {
+public interface MessageTransport extends AutoCloseable {
     enum Mode {
         CLIENT,
         DEVICE

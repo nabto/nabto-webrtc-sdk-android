@@ -32,6 +32,6 @@ public class LoggingSignalingClientObserverAdapter implements SignalingClient.Ob
 
     @Override
     public void onError(Throwable error) {
-        Log.e(TAG, "onError", error);
+        Log.e(TAG, "onError: " + error.getMessage());
     }
 }

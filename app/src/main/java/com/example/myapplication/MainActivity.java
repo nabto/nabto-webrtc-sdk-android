@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     // Nabto signaling
     SignalingClient client;
     MessageTransport messageTransport;
+    SignalingClientFactory.Options signalingClientOptions;
 
     private void initPeerConnectionFactory() {
         var initOptions = PeerConnectionFactory
@@ -92,12 +93,16 @@ public class MainActivity extends AppCompatActivity {
         initPeerConnectionFactory();
 
         // Connect to Nabto Signaling
-        var opts = new SignalingClientFactory.Options()
+        signalingClientOptions = new SignalingClientFactory.Options()
                 .setProductId(productId)
                 .setDeviceId(deviceId);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         Log.d(TAG, "Creating signaling client");
-        client = SignalingClientFactory.createSignalingClient(opts);
+        client = SignalingClientFactory.createSignalingClient(signalingClientOptions);
         messageTransport = ClientMessageTransport.createSharedSecretMessageTransport(client, sharedSecret);
         messageTransport.addObserver(new LoggingMessageTransportObserverAdapter() {
             @Override
@@ -122,6 +127,39 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         client.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        videoView.resumeVideo();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        videoView.pauseVideo();
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            super.onStop();
+            perfectNegotiation = null;
+            if (peerConnection != null) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (messageTransport != null) {
+                messageTransport.close();
+                messageTransport = null;
+            }
+            if (client != null) {
+                client.close();
+                client = null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "unhandled exception in onStop", e);
+        }
     }
 
     private void setupPeerConnection(List<SignalingIceServer> iceServers) {

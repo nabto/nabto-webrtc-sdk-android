@@ -22,6 +22,7 @@ public class ClientMessageTransportImpl implements MessageTransport {
     final private MessageSigner messageSigner;
     final private Set<MessageTransport.Observer> observers = ConcurrentHashMap.newKeySet();
     private State state = State.SETUP;
+    private SignalingClient.Observer signalingClientObserver;
     public static ClientMessageTransportImpl createSharedSecretMessageTransport(SignalingClient client, String sharedSecret, String keyId) {
         var messageSigner = new JWTMessageSigner(sharedSecret, keyId);
         var transport = new ClientMessageTransportImpl(client, messageSigner);
@@ -110,13 +111,21 @@ public class ClientMessageTransportImpl implements MessageTransport {
         this.observers.forEach( observer -> observer.onWebrtcSignalingMessage(message));
     }
 
-    private void start() {
-        this.client.addObserver(new SignalingClient.AbstractObserver() {
+    private synchronized void start() {
+        this.signalingClientObserver = new SignalingClient.AbstractObserver() {
             @Override
             public void onMessage(JSONObject message) {
                 handleMessage(message);
             }
-        });
+        };
+        this.client.addObserver(this.signalingClientObserver);
         this.sendSignalingMessage(new SignalingSetupRequest());
+    }
+
+    public synchronized void close() {
+        if (this.signalingClientObserver != null) {
+            this.client.removeObserver(this.signalingClientObserver);
+            this.signalingClientObserver = null;
+        }
     }
 }
