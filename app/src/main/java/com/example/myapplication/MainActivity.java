@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 .builder(this)
                 .createInitializationOptions();
         PeerConnectionFactory.initialize(initOptions);
-        org.webrtc.Logging.enableLogToDebugOutput(Logging.Severity.LS_VERBOSE);
+        org.webrtc.Logging.enableLogToDebugOutput(Logging.Severity.LS_INFO);
 
         var encoderFactory = new DefaultVideoEncoderFactory(eglBase.getEglBaseContext(), true, true);
         var decoderFactory = new DefaultVideoDecoderFactory(eglBase.getEglBaseContext());
@@ -112,7 +112,15 @@ public class MainActivity extends AppCompatActivity {
                 setupPeerConnection(iceServers);
             }
         });
-        client.addObserver(new LoggingSignalingClientObserverAdapter());
+        client.addObserver(new LoggingSignalingClientObserverAdapter() {
+            @Override
+            public void onConnectionReconnect() {
+                super.onConnectionReconnect();
+                if (peerConnection != null) {
+                    peerConnection.restartIce();
+                }
+            }
+        });
         client.start();
     }
 
@@ -123,6 +131,16 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onRenegotiationNeeded() {
                 super.onRenegotiationNeeded();
                 perfectNegotiation.onNegotiationNeeded();
+            }
+            @Override public void onConnectionChange(PeerConnection.PeerConnectionState newState) {
+                super.onConnectionChange(newState);
+                // This logic tries to establish the connection if it gets disconnected or fails.
+                if (newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
+                    client.checkAlive();
+                }
+                if (newState == PeerConnection.PeerConnectionState.FAILED) {
+                    peerConnection.restartIce();
+                }
             }
             @Override public void onIceCandidate(IceCandidate iceCandidate) {
                 super.onIceCandidate(iceCandidate);

@@ -241,8 +241,10 @@ public class SignalingClientImpl implements SignalingClient {
         try {
             var parsed = ReliabilityData.fromJson(message);
             var reliableMessage = reliabilityLayer.handleRoutingMessage(parsed);
-            for (var obs: observers) {
-                obs.onMessage(reliableMessage);
+            if (reliableMessage != null) {
+                for (var obs: observers) {
+                    obs.onMessage(reliableMessage);
+                }
             }
         } catch (JSONException e) {
             this.handleError(e);
