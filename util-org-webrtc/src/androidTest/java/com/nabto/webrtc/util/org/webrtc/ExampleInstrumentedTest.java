@@ -1,4 +1,4 @@
-package com.nabto.webrtc.util2;
+package com.nabto.webrtc.util.org.webrtc;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.nabto.webrtc.util2.test", appContext.getPackageName());
+        assertEquals("com.nabto.webrtc.util.org.webrtc.test", appContext.getPackageName());
     }
 }

@@ -16,7 +16,7 @@ import com.nabto.webrtc.SignalingClientFactory;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.WebrtcSignalingMessageUnion;
-import com.nabto.webrtc.util2.PerfectNegotiation;
+import com.nabto.webrtc.util.org.webrtc.PerfectNegotiation;
 
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;

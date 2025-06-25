@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.nabto.webrtc.util2"
+    namespace = "com.nabto.webrtc.util.org.webrtc"
     compileSdk = 35
 
     defaultConfig {
@@ -31,8 +31,8 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":util"))
-    compileOnly(libs.io.github.webrtc.sdk)
-    implementation(libs.appcompat)
+    compileOnly(libs.stream.webrtc.android)
+    //implementation(libs.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
