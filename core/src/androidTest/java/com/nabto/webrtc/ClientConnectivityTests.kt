@@ -189,4 +189,22 @@ class ClientConnectivityTestsFailOptions {
             assertEquals(error.errorMessage, errorMessage);
         }
     }
+    @Test(timeout = 60000)
+    fun client_connectivity_test11() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance()
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+        clientTestInstance.connectDevice();
+        signalingClient.close();
+        val error = clientTestInstance.waitForDeviceToReceiveError(1000.0);
+        assert(error != null);
+        assertEquals(error?.errorCode, SignalingError.CHANNEL_CLOSED);
+    }
 }

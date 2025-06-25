@@ -23,6 +23,9 @@ src/main/kotlin/org/openapitools/client/models/PostTestClient200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdGetActiveWebsockets200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdSendDeviceErrorRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdSendDeviceMessagesRequest.kt
+src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceError200Response.kt
+src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceError200ResponseError.kt
+src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceErrorRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceMessages200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceMessagesRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientRequest.kt

@@ -15,6 +15,7 @@ import org.openapitools.client.models.PostTestClientRequest
 import org.openapitools.client.models.PostTestClient200Response
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceErrorRequest
 import org.openapitools.client.models.PostTestClientByTestIdSendDeviceMessagesRequest
+import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceErrorRequest
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessagesRequest
 import java.math.BigDecimal
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
@@ -192,6 +193,16 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     public suspend fun waitForDeviceToReceiveMessages(messages: List<TestObject>, timeoutMillis: Double) {
         api.postTestClientByTestIdWaitForDeviceMessages(this.config.testId, PostTestClientByTestIdWaitForDeviceMessagesRequest(messages = messages, timeout = timeoutMillis ))
     }
+
+    public suspend fun waitForDeviceToReceiveError(timeoutMillis: Double) : SignalingError? {
+        val response = api.postTestClientByTestIdWaitForDeviceError(this.config.testId, PostTestClientByTestIdWaitForDeviceErrorRequest(timeout = timeoutMillis))
+        if (response.error == null) {
+            return null;
+        } else {
+            return SignalingError(response.error?.code, response.error?.message);
+        }
+    }
+
 
     override fun close() {
         api.deleteTestClientByTestId(this.config.testId);
