@@ -27,7 +27,8 @@ val TAG : String = "ClientTestInstance";
 data class ClientTestInstanceOptions(
     val failHttp: Boolean = false,
     val failWs: Boolean = false,
-    val extraClientConnectResponseData: Boolean = false
+    val extraClientConnectResponseData: Boolean = false,
+    val requireOnline: Boolean = false,
 ) {
 }
 
@@ -38,11 +39,11 @@ public fun createClientTestInstance(options: ClientTestInstanceOptions = ClientT
     var api = DefaultApi(endpointUrl);
 
     var testClient = api.postTestClient(PostTestClientRequest(endpointUrl = endpointUrl, failWs = options.failWs, failHttp = options.failHttp, extraClientConnectResponseData = options.extraClientConnectResponseData ));
-    return ClientTestInstance(testClient)
+    return ClientTestInstance(testClient, options)
 
 }
 
-public class ClientTestInstance(private val config: PostTestClient200Response) : AutoCloseable {
+public class ClientTestInstance(private val config: PostTestClient200Response, private val options: ClientTestInstanceOptions) : AutoCloseable {
     var api = DefaultApi(endpointUrl);
     val observedConnectionStates = mutableListOf<SignalingConnectionState>(); // List<SignalingConnectionState>();
     val observedErrors = mutableListOf<Throwable>(); // List<SignalingConnectionState>();
@@ -53,7 +54,7 @@ public class ClientTestInstance(private val config: PostTestClient200Response) :
     @OptIn(ExperimentalStdlibApi::class)
     public fun createSignalingClient() : SignalingClient {
         val client = SignalingClientFactory.createSignalingClient(SignalingClientFactory.Options( ).setProductId(this.config.productId).setDeviceId(this.config.deviceId).setEndpointUrl(
-            this.config.endpointUrl));
+            this.config.endpointUrl).setRequireOnline(this.options.requireOnline));
         client.addObserver(object: SignalingClient.AbstractObserver() {
             override fun onConnectionStateChange(newState: SignalingConnectionState) {
                 observedConnectionStates.add(newState);

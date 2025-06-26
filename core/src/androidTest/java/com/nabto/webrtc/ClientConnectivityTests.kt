@@ -1,6 +1,7 @@
 package com.nabto.webrtc
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.nabto.webrtc.impl.DeviceOfflineException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -207,5 +208,17 @@ class ClientConnectivityTestsFailOptions {
         assert(error != null);
         assertEquals(SignalingError.CHANNEL_CLOSED, error?.errorCode);
         assertEquals("The channel has been closed by the application.", error?.errorMessage);
+    }
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test12() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(requireOnline = true));
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitForError();
+        assert(clientTestInstance.observedErrors.size == 1);
+        val error = clientTestInstance.observedErrors[0];
+        assert(error is DeviceOfflineException);
     }
 }
