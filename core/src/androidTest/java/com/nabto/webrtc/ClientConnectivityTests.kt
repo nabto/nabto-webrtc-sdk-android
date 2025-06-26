@@ -208,4 +208,16 @@ class ClientConnectivityTestsFailOptions {
         assertEquals(SignalingError.CHANNEL_CLOSED, error?.errorCode);
         assertEquals("The channel has been closed by the application.", error?.errorMessage);
     }
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test12() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(requireOnline = true));
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitForError();
+        assert(clientTestInstance.observedErrors.size == 1);
+        val error = clientTestInstance.observedErrors[0];
+        assert(error != null);
+    }
 }

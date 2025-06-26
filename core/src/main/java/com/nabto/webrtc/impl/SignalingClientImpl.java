@@ -71,7 +71,9 @@ public class SignalingClientImpl implements SignalingClient {
                 } else {
                     setChannelState(SignalingChannelState.DISCONNECTED);
                     if (this.requireOnline) {
-                        future.completeExceptionally(new RuntimeException("The requested device is not online."));
+                        Throwable deviceOfflineException = new DeviceOfflineException();
+                        this.handleError(deviceOfflineException);
+                        future.completeExceptionally(deviceOfflineException);
                         return;
                     }
                 }
