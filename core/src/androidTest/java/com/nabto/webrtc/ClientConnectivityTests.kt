@@ -1,6 +1,7 @@
 package com.nabto.webrtc
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.nabto.webrtc.impl.DeviceOfflineException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -218,6 +219,6 @@ class ClientConnectivityTestsFailOptions {
         clientTestInstance.waitForError();
         assert(clientTestInstance.observedErrors.size == 1);
         val error = clientTestInstance.observedErrors[0];
-        assert(error != null);
+        assert(error is DeviceOfflineException);
     }
 }
