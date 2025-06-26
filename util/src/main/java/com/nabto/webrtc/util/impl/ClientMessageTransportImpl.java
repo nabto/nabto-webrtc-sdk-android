@@ -4,7 +4,6 @@ import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingIceServer;
 import com.nabto.webrtc.util.WebrtcSignalingMessage;
-import com.nabto.webrtc.util.WebrtcSignalingMessageUnion;
 
 import org.json.JSONObject;
 
@@ -56,7 +55,12 @@ public class ClientMessageTransportImpl implements MessageTransport {
 
     @Override
     public void sendWebrtcSignalingMessage(WebrtcSignalingMessage message) {
-        sendSignalingMessage(message);
+        if(message.isCandidate()) {
+            sendSignalingMessage(message.getCandidate());
+        }
+        if (message.isDescription()) {
+            sendSignalingMessage(message.getDescription());
+        }
     }
 
     private void sendSignalingMessage(SignalingMessage message) {
@@ -85,11 +89,11 @@ public class ClientMessageTransportImpl implements MessageTransport {
                 }
             } else if (state == State.SIGNALING) {
                 if (decoded.isCandidate()) {
-                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessageUnion(decoded.getCandidate()));
+                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessage(decoded.getCandidate()));
                     return;
                 }
                 if (decoded.isDescription()) {
-                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessageUnion(decoded.getDescription()));
+                    this.emitWebrtcSignalingMessage(new WebrtcSignalingMessage(decoded.getDescription()));
                     return;
                 }
             }
@@ -107,7 +111,7 @@ public class ClientMessageTransportImpl implements MessageTransport {
         this.observers.forEach( observer -> observer.onSetupDone(iceServers));
     }
 
-    private void emitWebrtcSignalingMessage(WebrtcSignalingMessageUnion message) {
+    private void emitWebrtcSignalingMessage(WebrtcSignalingMessage message) {
         this.observers.forEach( observer -> observer.onWebrtcSignalingMessage(message));
     }
 
