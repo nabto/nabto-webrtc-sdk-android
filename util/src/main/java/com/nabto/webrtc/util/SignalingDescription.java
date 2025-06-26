@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class SignalingDescription implements SignalingMessage, WebrtcSignalingMessage {
+public class SignalingDescription implements SignalingMessage {
     public final String type = SignalingMessageType.DESCRIPTION;
     public final Description description = new Description();
 

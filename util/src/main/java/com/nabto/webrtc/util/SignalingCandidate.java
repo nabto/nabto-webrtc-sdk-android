@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class SignalingCandidate implements SignalingMessage, WebrtcSignalingMessage {
+public class SignalingCandidate implements SignalingMessage {
     public final String type = SignalingMessageType.CANDIDATE;
     public final Candidate candidate = new Candidate();
 

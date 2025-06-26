@@ -1,6 +1,29 @@
 package com.nabto.webrtc.util;
 
-import com.nabto.webrtc.util.impl.SignalingMessage;
+public class WebrtcSignalingMessage {
+    private SignalingCandidate candidate = null;
+    private SignalingDescription description = null;
 
-public interface WebrtcSignalingMessage extends SignalingMessage {
+    public WebrtcSignalingMessage(SignalingCandidate candidate) {
+        this.candidate = candidate;
+    }
+    public WebrtcSignalingMessage(SignalingDescription description) {
+        this.description = description;
+    }
+
+    public boolean isCandidate() {
+        return candidate != null;
+    }
+
+    public boolean isDescription() {
+        return description != null;
+    }
+
+    public SignalingCandidate getCandidate() {
+        return candidate;
+    }
+
+    public SignalingDescription getDescription() {
+        return description;
+    }
 }

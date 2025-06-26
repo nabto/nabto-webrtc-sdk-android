@@ -24,7 +24,7 @@ public interface MessageTransport extends AutoCloseable {
          * @param message The received message
          */
         // @todo use Webrtc signaling message union
-        void onWebrtcSignalingMessage(WebrtcSignalingMessageUnion message);
+        void onWebrtcSignalingMessage(WebrtcSignalingMessage message);
 
         /**
          * Callback invoked if an error occurs in the message transport.
@@ -44,7 +44,7 @@ public interface MessageTransport extends AutoCloseable {
     class AbstractObserver implements Observer {
 
         @Override
-        public void onWebrtcSignalingMessage(WebrtcSignalingMessageUnion message) {
+        public void onWebrtcSignalingMessage(WebrtcSignalingMessage message) {
 
         }
 

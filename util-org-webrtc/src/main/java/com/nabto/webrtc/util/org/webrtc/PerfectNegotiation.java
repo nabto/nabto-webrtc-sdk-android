@@ -5,7 +5,7 @@ import android.util.Log;
 import com.nabto.webrtc.util.MessageTransport;
 import com.nabto.webrtc.util.SignalingCandidate;
 import com.nabto.webrtc.util.SignalingDescription;
-import com.nabto.webrtc.util.WebrtcSignalingMessageUnion;
+import com.nabto.webrtc.util.WebrtcSignalingMessage;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.PeerConnection;
@@ -64,7 +64,7 @@ public class PerfectNegotiation {
         this.messageTransport = messageTransport;
     }
 
-    public void onMessage(WebrtcSignalingMessageUnion msg) {
+    public void onMessage(WebrtcSignalingMessage msg) {
         SignalingDescription description = msg.getDescription();
         SignalingCandidate candidate = msg.getCandidate();
 
@@ -99,7 +99,7 @@ public class PerfectNegotiation {
     public void onIceCandidate(IceCandidate iceCandidate) {
         if (iceCandidate != null) {
             SignalingCandidate signalingCandidate = new SignalingCandidate(iceCandidate.sdp).withSdpMid(iceCandidate.sdpMid).withSdpMLineIndex(iceCandidate.sdpMLineIndex);
-            this.messageTransport.sendWebrtcSignalingMessage(signalingCandidate);
+            this.messageTransport.sendWebrtcSignalingMessage(new WebrtcSignalingMessage(signalingCandidate));
         }
     }
 
@@ -150,7 +150,7 @@ public class PerfectNegotiation {
 
     void sendDescription(SessionDescription description) {
         SignalingDescription signalingDescription = new SignalingDescription(description.type.canonicalForm(), description.description);
-        this.messageTransport.sendWebrtcSignalingMessage(signalingDescription);
+        this.messageTransport.sendWebrtcSignalingMessage(new WebrtcSignalingMessage(signalingDescription));
     }
 
     CompletableFuture<Void> setRemoteDescription(SessionDescription sdp) {
