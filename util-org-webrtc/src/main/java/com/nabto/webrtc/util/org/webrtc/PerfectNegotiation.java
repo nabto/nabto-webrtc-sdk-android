@@ -59,7 +59,7 @@ public class PerfectNegotiation {
 
     public PerfectNegotiation(PeerConnection peerConnection, MessageTransport messageTransport) {
         // devices acts as polite and clients are impolite.
-        this.polite = (messageTransport.getMode() == MessageTransport.Mode.DEVICE);
+        this.polite = false;
         this.pc = peerConnection;
         this.messageTransport = messageTransport;
     }
