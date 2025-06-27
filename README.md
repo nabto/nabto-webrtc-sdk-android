@@ -33,19 +33,19 @@ A test video feed can be started at https://nabto.github.io/nabto-webrtc-sdk-js/
 settings.gradle
 ```groovy
 dependencyResolutionManagement {
-	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-	repositories {
-		mavenCentral()
-		maven { url 'https://jitpack.io' }
-	}
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
 }
 ```
 
 build.gradle
 ```groovy
 dependencies {
-	implementation 'com.github.nabto.nabto-webrtc-sdk-android:core:<gittag>'
-  	implementation 'com.github.nabto.nabto-webrtc-sdk-android:util:<gittag>'
+    implementation 'com.github.nabto.nabto-webrtc-sdk-android:core:<gittag>'
+    implementation 'com.github.nabto.nabto-webrtc-sdk-android:util:<gittag>'
     implementation 'com.github.nabto.nabto-webrtc-sdk-android:util-org-webrtc:<gittag>'
 }
 ```
@@ -56,18 +56,18 @@ dependencies {
 settings.gradle.kts
 ```kotlin
 dependencyResolutionManagement {
-	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-	repositories {
-		mavenCentral()
-		maven { url = uri("https://jitpack.io") }
-	}
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
 }
 ```
 
 build.gradle.kts
 ```kotlin
 dependencies {
-	implementation("com.github.nabto.nabto-webrtc-sdk-android:core:<gittag>")
+    implementation("com.github.nabto.nabto-webrtc-sdk-android:core:<gittag>")
     implementation("com.github.nabto.nabto-webrtc-sdk-android:util:<gittag>")
     implementation("com.github.nabto.nabto-webrtc-sdk-android:util-org-webrtc:<gittag>")
 }
