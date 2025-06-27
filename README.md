@@ -31,7 +31,7 @@ A test video feed can be started at https://nabto.github.io/nabto-webrtc-sdk-js/
 ## How to use the library from gradle groovy files
 
 settings.gradle
-```
+```groovy
 dependencyResolutionManagement {
 	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 	repositories {
@@ -54,7 +54,7 @@ dependencies {
 ## How to use the library from gradle kts files
 
 settings.gradle.kts
-```
+```kotlin
 dependencyResolutionManagement {
 	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 	repositories {
