@@ -1,5 +1,21 @@
 plugins {
     alias(libs.plugins.android.library)
+    id("maven-publish")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "io.jitpack.nabto-webrtc-sdk-android"
+            artifactId = "util-org-webrtc"
+            version = "0.0.1"
+
+            // Delay configuration until after evaluation
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }
 
 android {
@@ -8,11 +24,20 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+        aarMetadata {
+            minCompileSdk = libs.versions.android.minSdk.get().toInt()
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
