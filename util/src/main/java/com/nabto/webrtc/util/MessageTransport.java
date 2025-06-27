@@ -3,13 +3,6 @@ package com.nabto.webrtc.util;
 import java.util.List;
 
 public interface MessageTransport extends AutoCloseable {
-    enum Mode {
-        CLIENT,
-        DEVICE
-    }
-
-    Mode getMode();
-
     // @todo use Webrtc signaling message union
     void sendWebrtcSignalingMessage(WebrtcSignalingMessage message);
 
