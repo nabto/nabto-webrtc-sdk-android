@@ -49,11 +49,6 @@ public class ClientMessageTransportImpl implements MessageTransport {
     }
 
     @Override
-    public Mode getMode() {
-        return Mode.CLIENT;
-    }
-
-    @Override
     public void sendWebrtcSignalingMessage(WebrtcSignalingMessage message) {
         if(message.isCandidate()) {
             sendSignalingMessage(message.getCandidate());
