@@ -14,9 +14,6 @@ import org.webrtc.SessionDescription;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Convert an WebRTC peer connection SdpObserver to a completeable future.
- */
 class FutureSdpObserver implements SdpObserver {
 
     CompletableFuture<Void> future = new CompletableFuture<>();
@@ -46,7 +43,10 @@ class FutureSdpObserver implements SdpObserver {
 }
 
 /**
- * This class implements the perfect negotiation pattern from <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation">Perfect Negotiation</a>
+ * This class implements the <a
+ * href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation">Perfect
+ * Negotiation</a> pattern. This implements perfect negotiation for the <a
+ * href="https://github.com/GetStream/webrtc-android">getStream</a> WebRTC library.
  */
 public class PerfectNegotiation {
     final String TAG = "PerfectNegotiation";
@@ -57,6 +57,12 @@ public class PerfectNegotiation {
     MessageTransport messageTransport;
     boolean polite;
 
+    /**
+     * Construct a perfect negotiator for a PeerConnection.
+     *
+     * @param peerConnection The PeerConnection to negotiate.
+     * @param messageTransport The MessageTransport to use for sending/receiving signaling messages.
+     */
     public PerfectNegotiation(PeerConnection peerConnection, MessageTransport messageTransport) {
         // devices acts as polite and clients are impolite.
         this.polite = false;
