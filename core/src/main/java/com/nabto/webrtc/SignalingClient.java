@@ -47,6 +47,10 @@ public interface SignalingClient extends AutoCloseable {
         void onError(Throwable error);
     }
 
+    /**
+     * Abstract Observer implementation with default implementations which can
+     * be extended.
+     */
     class AbstractObserver implements Observer {
 
         @Override
