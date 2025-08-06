@@ -29,7 +29,6 @@ src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDevi
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceMessages200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientByTestIdWaitForDeviceMessagesRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestClientRequest.kt
-src/main/kotlin/org/openapitools/client/models/PostTestDevice200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClients200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClientsByClientIdWaitForErrorRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostTestDeviceByTestIdClientsByClientIdWaitForMessagesRequest.kt
@@ -38,3 +37,6 @@ src/main/kotlin/org/openapitools/client/models/PostV1ClientConnect200Response.kt
 src/main/kotlin/org/openapitools/client/models/PostV1ClientConnect400Response.kt
 src/main/kotlin/org/openapitools/client/models/PostV1ClientConnectRequest.kt
 src/main/kotlin/org/openapitools/client/models/PostV1DeviceConnect200Response.kt
+src/main/kotlin/org/openapitools/client/models/PostV1IceServers200Response.kt
+src/main/kotlin/org/openapitools/client/models/PostV1IceServers200ResponseIceServersInner.kt
+src/main/kotlin/org/openapitools/client/models/PostV1IceServers400Response.kt

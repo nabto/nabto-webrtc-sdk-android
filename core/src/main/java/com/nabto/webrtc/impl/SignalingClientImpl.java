@@ -1,5 +1,6 @@
 package com.nabto.webrtc.impl;
 
+import com.nabto.webrtc.DeviceOfflineException;
 import com.nabto.webrtc.SignalingChannelState;
 import com.nabto.webrtc.SignalingClient;
 import com.nabto.webrtc.SignalingConnectionState;

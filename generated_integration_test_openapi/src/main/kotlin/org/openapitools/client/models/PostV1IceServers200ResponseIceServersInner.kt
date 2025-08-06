@@ -20,20 +20,24 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * 
+ * Ice-Server
  *
- * @param message 
- * @param code 
+ * @param urls 
+ * @param username 
+ * @param credential 
  */
 
 
-data class PostV1ClientConnect400Response (
+data class PostV1IceServers200ResponseIceServersInner (
 
-    @Json(name = "message")
-    val message: kotlin.String? = null,
+    @Json(name = "urls")
+    val urls: kotlin.collections.List<kotlin.String>,
 
-    @Json(name = "code")
-    val code: kotlin.String? = null
+    @Json(name = "username")
+    val username: kotlin.String? = null,
+
+    @Json(name = "credential")
+    val credential: kotlin.String? = null
 
 ) {
 

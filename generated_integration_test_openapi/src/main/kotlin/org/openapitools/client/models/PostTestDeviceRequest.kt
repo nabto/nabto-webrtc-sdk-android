@@ -25,6 +25,8 @@ import com.squareup.moshi.JsonClass
  * @param failHttp 
  * @param failWs 
  * @param extraDeviceConnectResponseData 
+ * @param productIdNotFound 
+ * @param deviceIdNotFound 
  */
 
 
@@ -37,7 +39,13 @@ data class PostTestDeviceRequest (
     val failWs: kotlin.Boolean? = null,
 
     @Json(name = "extraDeviceConnectResponseData")
-    val extraDeviceConnectResponseData: kotlin.Boolean? = null
+    val extraDeviceConnectResponseData: kotlin.Boolean? = null,
+
+    @Json(name = "productIdNotFound")
+    val productIdNotFound: kotlin.Boolean? = null,
+
+    @Json(name = "deviceIdNotFound")
+    val deviceIdNotFound: kotlin.Boolean? = null
 
 ) {
 

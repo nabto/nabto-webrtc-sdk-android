@@ -2,6 +2,9 @@ package com.nabto.webrtc.impl;
 
 import androidx.annotation.NonNull;
 
+import com.nabto.webrtc.DeviceIdNotFoundException;
+import com.nabto.webrtc.HttpException;
+import com.nabto.webrtc.ProductIdNotFoundException;
 import com.squareup.moshi.Moshi;
 
 import org.json.JSONException;
@@ -41,6 +44,11 @@ public class Backend {
         }
     }
 
+    private static class BackendErrorResponse {
+        public String message;
+        public String code;
+    }
+
     public static class ClientConnectResponse {
         public String signalingUrl;
         public boolean deviceOnline;
@@ -77,17 +85,40 @@ public class Backend {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        future.completeExceptionally(new ResponseException(response.code(), response.message()));
-                    } else {
+                if (response.isSuccessful()) {
+                    try (ResponseBody responseBody = response.body()) {
                         future.complete(responseBody.string());
                     }
+                } else {
+                    Throwable e = handleError(response);
+                    future.completeExceptionally(e);
                 }
             }
         });
 
         return future;
+    }
+
+    private Throwable handleError(@NonNull Response response) {
+        try {
+            try (ResponseBody responseBody = response.body()) {
+                var adapter = moshi.adapter(BackendErrorResponse.class);
+                var respString = responseBody.string();
+                BackendErrorResponse errorResponse = adapter.fromJson(respString);
+                String errorCode = errorResponse.code;
+                if (errorCode != null) {
+                    if (errorCode.equals("PRODUCT_ID_NOT_FOUND")) {
+                        return new ProductIdNotFoundException(response.code(), errorResponse.message);
+                    } else if (errorCode.equals("DEVICE_ID_NOT_FOUND")) {
+                        return new DeviceIdNotFoundException(response.code(), errorResponse.message);
+                    }
+                }
+                // fall through
+                return new HttpException(response.code(), errorResponse.message);
+            }
+        } catch (Exception e) {
+            return new HttpException(response.code(), response.message());
+        }
     }
 
     public CompletableFuture<ClientConnectResponse> doClientConnect(String authToken) {
@@ -117,15 +148,21 @@ public class Backend {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) {
-                        future.completeExceptionally(new ResponseException(response.code(), response.message()));
-                    } else {
-                        var adapter = moshi.adapter(ClientConnectResponse.class);
-                        var respString = responseBody.string();
-                        ClientConnectResponse clientInfo = adapter.fromJson(respString);
-                        future.complete(clientInfo);
+                if (response.isSuccessful()) {
+                    try (ResponseBody responseBody = response.body()) {
+                        try {
+                            var adapter = moshi.adapter(ClientConnectResponse.class);
+                            var respString = responseBody.string();
+                            ClientConnectResponse clientInfo = adapter.fromJson(respString);
+                            future.complete(clientInfo);
+                        } catch (Exception e) {
+                            future.completeExceptionally(e);
+                            return;
+                        }
                     }
+                } else {
+                    Throwable e = handleError(response);
+                    future.completeExceptionally(e);
                 }
             }
         });

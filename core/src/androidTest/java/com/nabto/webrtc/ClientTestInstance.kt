@@ -29,6 +29,8 @@ data class ClientTestInstanceOptions(
     val failWs: Boolean = false,
     val extraClientConnectResponseData: Boolean = false,
     val requireOnline: Boolean = false,
+    val productIdNotFound: Boolean = false,
+    val deviceIdNotFound: Boolean = false,
 ) {
 }
 
@@ -38,7 +40,13 @@ data class TestObject(val foo : String = "test") {
 public fun createClientTestInstance(options: ClientTestInstanceOptions = ClientTestInstanceOptions()): ClientTestInstance {
     var api = DefaultApi(endpointUrl);
 
-    var testClient = api.postTestClient(PostTestClientRequest(endpointUrl = endpointUrl, failWs = options.failWs, failHttp = options.failHttp, extraClientConnectResponseData = options.extraClientConnectResponseData ));
+    var testClient = api.postTestClient(PostTestClientRequest(
+        endpointUrl = endpointUrl,
+        failWs = options.failWs,
+        failHttp = options.failHttp,
+        extraClientConnectResponseData = options.extraClientConnectResponseData,
+        productIdNotFound = options.productIdNotFound,
+        deviceIdNotFound = options.deviceIdNotFound ));
     return ClientTestInstance(testClient, options)
 
 }
