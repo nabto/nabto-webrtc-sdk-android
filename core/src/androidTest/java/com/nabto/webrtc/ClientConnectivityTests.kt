@@ -231,7 +231,8 @@ class ClientConnectivityTestsFailOptions {
         val error = clientTestInstance.observedErrors[0];
         assert(error is ProductIdNotFoundException);
     }
-        @Test(timeout = 60000)
+    
+    @Test(timeout = 60000)
     fun client_connectivity_test16() = runBlocking {
         val clientTestInstance =
             createClientTestInstance(ClientTestInstanceOptions(deviceIdNotFound = true));
