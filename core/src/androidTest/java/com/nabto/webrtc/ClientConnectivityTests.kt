@@ -1,10 +1,8 @@
 package com.nabto.webrtc
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.nabto.webrtc.impl.DeviceOfflineException
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -220,5 +218,28 @@ class ClientConnectivityTestsFailOptions {
         assert(clientTestInstance.observedErrors.size == 1);
         val error = clientTestInstance.observedErrors[0];
         assert(error is DeviceOfflineException);
+    }
+
+    @Test(timeout = 60000)
+    fun client_connectivity_test15() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(productIdNotFound = true));
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitForError();
+        assert(clientTestInstance.observedErrors.size == 1);
+        val error = clientTestInstance.observedErrors[0];
+        assert(error is ProductIdNotFoundException);
+    }
+        @Test(timeout = 60000)
+    fun client_connectivity_test16() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(deviceIdNotFound = true));
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitForError();
+        assert(clientTestInstance.observedErrors.size == 1);
+        val error = clientTestInstance.observedErrors[0];
+        assert(error is DeviceIdNotFoundException);
     }
 }

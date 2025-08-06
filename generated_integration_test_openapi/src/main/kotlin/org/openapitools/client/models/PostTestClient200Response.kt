@@ -26,6 +26,7 @@ import com.squareup.moshi.JsonClass
  * @param deviceId 
  * @param endpointUrl 
  * @param testId 
+ * @param accessToken 
  */
 
 
@@ -41,7 +42,10 @@ data class PostTestClient200Response (
     val endpointUrl: kotlin.String,
 
     @Json(name = "testId")
-    val testId: kotlin.String
+    val testId: kotlin.String,
+
+    @Json(name = "accessToken")
+    val accessToken: kotlin.String
 
 ) {
 

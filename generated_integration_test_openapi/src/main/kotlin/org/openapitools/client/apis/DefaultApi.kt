@@ -28,7 +28,6 @@ import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceErrorRe
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessages200Response
 import org.openapitools.client.models.PostTestClientByTestIdWaitForDeviceMessagesRequest
 import org.openapitools.client.models.PostTestClientRequest
-import org.openapitools.client.models.PostTestDevice200Response
 import org.openapitools.client.models.PostTestDeviceByTestIdClients200Response
 import org.openapitools.client.models.PostTestDeviceByTestIdClientsByClientIdWaitForErrorRequest
 import org.openapitools.client.models.PostTestDeviceByTestIdClientsByClientIdWaitForMessagesRequest
@@ -37,6 +36,8 @@ import org.openapitools.client.models.PostV1ClientConnect200Response
 import org.openapitools.client.models.PostV1ClientConnect400Response
 import org.openapitools.client.models.PostV1ClientConnectRequest
 import org.openapitools.client.models.PostV1DeviceConnect200Response
+import org.openapitools.client.models.PostV1IceServers200Response
+import org.openapitools.client.models.PostV1IceServers400Response
 
 import com.squareup.moshi.Json
 
@@ -1160,7 +1161,7 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      * 
      * 
      * @param postTestDeviceRequest 
-     * @return PostTestDevice200Response
+     * @return PostTestClient200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
@@ -1169,11 +1170,11 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun postTestDevice(postTestDeviceRequest: PostTestDeviceRequest) : PostTestDevice200Response {
+    fun postTestDevice(postTestDeviceRequest: PostTestDeviceRequest) : PostTestClient200Response {
         val localVarResponse = postTestDeviceWithHttpInfo(postTestDeviceRequest = postTestDeviceRequest)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as PostTestDevice200Response
+            ResponseType.Success -> (localVarResponse as Success<*>).data as PostTestClient200Response
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -1191,16 +1192,16 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      * 
      * 
      * @param postTestDeviceRequest 
-     * @return ApiResponse<PostTestDevice200Response?>
+     * @return ApiResponse<PostTestClient200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun postTestDeviceWithHttpInfo(postTestDeviceRequest: PostTestDeviceRequest) : ApiResponse<PostTestDevice200Response?> {
+    fun postTestDeviceWithHttpInfo(postTestDeviceRequest: PostTestDeviceRequest) : ApiResponse<PostTestClient200Response?> {
         val localVariableConfig = postTestDeviceRequestConfig(postTestDeviceRequest = postTestDeviceRequest)
 
-        return request<PostTestDeviceRequest, PostTestDevice200Response>(
+        return request<PostTestDeviceRequest, PostTestClient200Response>(
             localVariableConfig
         )
     }
@@ -2050,6 +2051,7 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      * 
      * 
      * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
      * @return PostV1ClientConnect200Response
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -2059,8 +2061,8 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun postV1ClientConnect(postV1ClientConnectRequest: PostV1ClientConnectRequest) : PostV1ClientConnect200Response {
-        val localVarResponse = postV1ClientConnectWithHttpInfo(postV1ClientConnectRequest = postV1ClientConnectRequest)
+    fun postV1ClientConnect(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String? = null) : PostV1ClientConnect200Response {
+        val localVarResponse = postV1ClientConnectWithHttpInfo(postV1ClientConnectRequest = postV1ClientConnectRequest, authorization = authorization)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as PostV1ClientConnect200Response
@@ -2081,14 +2083,15 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      * 
      * 
      * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
      * @return ApiResponse<PostV1ClientConnect200Response?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun postV1ClientConnectWithHttpInfo(postV1ClientConnectRequest: PostV1ClientConnectRequest) : ApiResponse<PostV1ClientConnect200Response?> {
-        val localVariableConfig = postV1ClientConnectRequestConfig(postV1ClientConnectRequest = postV1ClientConnectRequest)
+    fun postV1ClientConnectWithHttpInfo(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String?) : ApiResponse<PostV1ClientConnect200Response?> {
+        val localVariableConfig = postV1ClientConnectRequestConfig(postV1ClientConnectRequest = postV1ClientConnectRequest, authorization = authorization)
 
         return request<PostV1ClientConnectRequest, PostV1ClientConnect200Response>(
             localVariableConfig
@@ -2099,12 +2102,14 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
      * To obtain the request config of the operation postV1ClientConnect
      *
      * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
      * @return RequestConfig
      */
-    fun postV1ClientConnectRequestConfig(postV1ClientConnectRequest: PostV1ClientConnectRequest) : RequestConfig<PostV1ClientConnectRequest> {
+    fun postV1ClientConnectRequestConfig(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String?) : RequestConfig<PostV1ClientConnectRequest> {
         val localVariableBody = postV1ClientConnectRequest
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        authorization?.apply { localVariableHeaders["authorization"] = this.toString() }
         localVariableHeaders["Content-Type"] = "application/json"
         localVariableHeaders["Accept"] = "application/json, multipart/form-data"
 
@@ -2187,6 +2192,82 @@ class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/v1/device/connect",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = false,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * 
+     * 
+     * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
+     * @return PostV1IceServers200Response
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun postV1IceServers(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String? = null) : PostV1IceServers200Response {
+        val localVarResponse = postV1IceServersWithHttpInfo(postV1ClientConnectRequest = postV1ClientConnectRequest, authorization = authorization)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as PostV1IceServers200Response
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * 
+     * 
+     * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
+     * @return ApiResponse<PostV1IceServers200Response?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun postV1IceServersWithHttpInfo(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String?) : ApiResponse<PostV1IceServers200Response?> {
+        val localVariableConfig = postV1IceServersRequestConfig(postV1ClientConnectRequest = postV1ClientConnectRequest, authorization = authorization)
+
+        return request<PostV1ClientConnectRequest, PostV1IceServers200Response>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation postV1IceServers
+     *
+     * @param postV1ClientConnectRequest 
+     * @param authorization  (optional)
+     * @return RequestConfig
+     */
+    fun postV1IceServersRequestConfig(postV1ClientConnectRequest: PostV1ClientConnectRequest, authorization: kotlin.String?) : RequestConfig<PostV1ClientConnectRequest> {
+        val localVariableBody = postV1ClientConnectRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        authorization?.apply { localVariableHeaders["authorization"] = this.toString() }
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json, multipart/form-data"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/v1/ice-servers",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = false,

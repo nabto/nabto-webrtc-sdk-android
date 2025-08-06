@@ -26,6 +26,9 @@ import com.squareup.moshi.JsonClass
  * @param failWs 
  * @param endpointUrl specify the endpoint url the server returns in the test create response and the websocket url. Format http://<ip>:<port>
  * @param extraClientConnectResponseData 
+ * @param requireAccessToken Set to true to force the client to use an access token when connecting
+ * @param productIdNotFound set to true to force the client api to return a PRODUCT_ID_NOT_FOUND error
+ * @param deviceIdNotFound set to true to force the client api to return a DEVICE_ID_NOT_FOUND error
  */
 
 
@@ -42,7 +45,19 @@ data class PostTestClientRequest (
     val endpointUrl: kotlin.String? = null,
 
     @Json(name = "extraClientConnectResponseData")
-    val extraClientConnectResponseData: kotlin.Boolean? = null
+    val extraClientConnectResponseData: kotlin.Boolean? = null,
+
+    /* Set to true to force the client to use an access token when connecting */
+    @Json(name = "requireAccessToken")
+    val requireAccessToken: kotlin.Boolean? = null,
+
+    /* set to true to force the client api to return a PRODUCT_ID_NOT_FOUND error */
+    @Json(name = "productIdNotFound")
+    val productIdNotFound: kotlin.Boolean? = null,
+
+    /* set to true to force the client api to return a DEVICE_ID_NOT_FOUND error */
+    @Json(name = "deviceIdNotFound")
+    val deviceIdNotFound: kotlin.Boolean? = null
 
 ) {
 

@@ -15,6 +15,7 @@
 
 package org.openapitools.client.models
 
+import org.openapitools.client.models.PostV1IceServers200ResponseIceServersInner
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -22,18 +23,14 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param message 
- * @param code 
+ * @param iceServers 
  */
 
 
-data class PostV1ClientConnect400Response (
+data class PostV1IceServers200Response (
 
-    @Json(name = "message")
-    val message: kotlin.String? = null,
-
-    @Json(name = "code")
-    val code: kotlin.String? = null
+    @Json(name = "iceServers")
+    val iceServers: kotlin.collections.List<PostV1IceServers200ResponseIceServersInner>
 
 ) {
 

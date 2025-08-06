@@ -23,17 +23,13 @@ import com.squareup.moshi.JsonClass
  * 
  *
  * @param message 
- * @param code 
  */
 
 
-data class PostV1ClientConnect400Response (
+data class PostV1IceServers400Response (
 
     @Json(name = "message")
-    val message: kotlin.String? = null,
-
-    @Json(name = "code")
-    val code: kotlin.String? = null
+    val message: kotlin.String? = null
 
 ) {
 
