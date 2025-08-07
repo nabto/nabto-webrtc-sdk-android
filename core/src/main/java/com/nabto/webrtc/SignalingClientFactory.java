@@ -55,6 +55,16 @@ public class SignalingClientFactory {
             this.requireOnline = requireOnline;
             return this;
         }
+
+        /**
+         * Set an Access Token for the client to use when connecting to the Nabto WebRTC Signaling Service.
+         * @param accessToken The access token to use.
+         * @return This Options object.
+         */
+        public Options setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+            return this;
+        }
     }
 
     /**

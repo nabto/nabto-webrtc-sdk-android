@@ -219,6 +219,34 @@ class ClientConnectivityTestsFailOptions {
         val error = clientTestInstance.observedErrors[0];
         assert(error is DeviceOfflineException);
     }
+    @Test(timeout = 60000)
+    fun client_connectivity_test13() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(requireAccessToken = true));
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitConnectionStates(
+            listOf(
+                SignalingConnectionState.CONNECTING,
+                SignalingConnectionState.CONNECTED
+            )
+        );
+    }
+    @Test(timeout = 60000)
+    fun client_connectivity_test14() = runBlocking {
+        val clientTestInstance =
+            createClientTestInstance(ClientTestInstanceOptions(requireAccessToken = true));
+        clientTestInstance.overrideAccessToken("invalid");
+        val signalingClient = clientTestInstance.createSignalingClient();
+        signalingClient.start();
+        clientTestInstance.waitForError();
+        assert(clientTestInstance.observedErrors.size == 1);
+        val error = clientTestInstance.observedErrors[0];
+        assert(error is HttpException);
+        if (error is HttpException) {
+            assert(error.statusCode == 401);
+        }
+    }
 
     @Test(timeout = 60000)
     fun client_connectivity_test15() = runBlocking {
@@ -231,7 +259,7 @@ class ClientConnectivityTestsFailOptions {
         val error = clientTestInstance.observedErrors[0];
         assert(error is ProductIdNotFoundException);
     }
-    
+
     @Test(timeout = 60000)
     fun client_connectivity_test16() = runBlocking {
         val clientTestInstance =

@@ -28,6 +28,7 @@ data class ClientTestInstanceOptions(
     val failHttp: Boolean = false,
     val failWs: Boolean = false,
     val extraClientConnectResponseData: Boolean = false,
+    val requireAccessToken: Boolean = false,
     val requireOnline: Boolean = false,
     val productIdNotFound: Boolean = false,
     val deviceIdNotFound: Boolean = false,
@@ -45,6 +46,7 @@ public fun createClientTestInstance(options: ClientTestInstanceOptions = ClientT
         failWs = options.failWs,
         failHttp = options.failHttp,
         extraClientConnectResponseData = options.extraClientConnectResponseData,
+        requireAccessToken = options.requireAccessToken,
         productIdNotFound = options.productIdNotFound,
         deviceIdNotFound = options.deviceIdNotFound ));
     return ClientTestInstance(testClient, options)
@@ -59,10 +61,25 @@ public class ClientTestInstance(private val config: PostTestClient200Response, p
     private val stateChannel = Channel<SignalingConnectionState>(Channel.UNLIMITED)
     private val messageChannel = Channel<JSONObject>(Channel.UNLIMITED)
     private val errorChannel = Channel<Throwable>(Channel.UNLIMITED)
+    var overrideAccessToken : String? = null;
     @OptIn(ExperimentalStdlibApi::class)
     public fun createSignalingClient() : SignalingClient {
-        val client = SignalingClientFactory.createSignalingClient(SignalingClientFactory.Options( ).setProductId(this.config.productId).setDeviceId(this.config.deviceId).setEndpointUrl(
-            this.config.endpointUrl).setRequireOnline(this.options.requireOnline));
+        val options = SignalingClientFactory.Options()
+            .setProductId(this.config.productId)
+            .setDeviceId(this.config.deviceId)
+            .setEndpointUrl(this.config.endpointUrl)
+            .setRequireOnline(this.options.requireOnline);
+
+        if (this.options.requireAccessToken) {
+            if (overrideAccessToken != null) {
+                options.setAccessToken(this.overrideAccessToken);
+            } else {
+                options.setAccessToken(this.config.accessToken);
+            }
+        }
+
+        val client = SignalingClientFactory.createSignalingClient(options);
+
         client.addObserver(object: SignalingClient.AbstractObserver() {
             override fun onConnectionStateChange(newState: SignalingConnectionState) {
                 observedConnectionStates.add(newState);
@@ -81,6 +98,11 @@ public class ClientTestInstance(private val config: PostTestClient200Response, p
             }
         });
         return client;
+    }
+
+    public fun overrideAccessToken(token: String)
+    {
+        this.overrideAccessToken = token;
     }
 
     public suspend fun closeWebsocket() {
