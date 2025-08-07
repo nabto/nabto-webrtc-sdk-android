@@ -64,8 +64,11 @@ public class ClientTestInstance(private val config: PostTestClient200Response, p
     var overrideAccessToken : String? = null;
     @OptIn(ExperimentalStdlibApi::class)
     public fun createSignalingClient() : SignalingClient {
-        val options = SignalingClientFactory.Options( ).setProductId(this.config.productId).setDeviceId(this.config.deviceId).setEndpointUrl(
-            this.config.endpointUrl).setRequireOnline(this.options.requireOnline);
+        val options = SignalingClientFactory.Options()
+            .setProductId(this.config.productId)
+            .setDeviceId(this.config.deviceId)
+            .setEndpointUrl(this.config.endpointUrl)
+            .setRequireOnline(this.options.requireOnline);
 
         if (this.options.requireAccessToken) {
             if (overrideAccessToken != null) {
