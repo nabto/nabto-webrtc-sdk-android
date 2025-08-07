@@ -3,6 +3,7 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,7 +75,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFirstFrameRendered() {}
             @Override
-            public void onFrameResolutionChanged(int i, int i1, int i2) {}
+            public void onFrameResolutionChanged(int width, int height, int rotation) {
+                // fix such that the video is not cropped at the edges.
+                runOnUiThread(() -> {
+                    float aspectRatio = (rotation == 0 || rotation == 180) ? (float) width / height : (float) height / width;
+                    int newWidth = videoView.getWidth();
+                    int newHeight = (int) (newWidth / aspectRatio);
+                    ViewGroup.LayoutParams params = videoView.getLayoutParams();
+                    params.height = newHeight;
+                    videoView.setLayoutParams(params);
+                });
+            }
         });
     }
 
