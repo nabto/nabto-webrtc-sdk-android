@@ -16,7 +16,7 @@ public class LoggingMessageTransportObserverAdapter implements MessageTransport.
     }
 
     @Override
-    public void onError(Exception error) {
+    public void onError(Throwable error) {
         Log.e(TAG, "onError: " + error.getMessage());
     }
 

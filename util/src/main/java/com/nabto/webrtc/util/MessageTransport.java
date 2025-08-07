@@ -54,7 +54,7 @@ public interface MessageTransport extends AutoCloseable {
          *
          * @param error The error that occurred.
          */
-        void onError(Exception error);
+        void onError(Throwable error);
 
         /**
          * Callback invoked when the setup phase of the message transport is concluded.
@@ -75,7 +75,7 @@ public interface MessageTransport extends AutoCloseable {
         }
 
         @Override
-        public void onError(Exception error) {
+        public void onError(Throwable error) {
 
         }
 
