@@ -17,7 +17,7 @@ import org.webrtc.PeerConnection.PeerConnectionState;
  * and calling handlePeerConnectionStateChange from
  * your PeerConnection observer's onConnectionChange method.
  */
-public class SignalingEventHandler implements SignalingClient.Observer {
+public class SignalingEventHandler extends SignalingClient.AbstractObserver {
     private final PeerConnection peerConnection;
     private final SignalingClient client;
 
@@ -38,18 +38,9 @@ public class SignalingEventHandler implements SignalingClient.Observer {
         }
     }
 
-    private void handleSignalingConnectionReconnect() {
+    @Override public void onConnectionReconnect() {
         if (peerConnection != null) {
             peerConnection.restartIce();
         }
-    }
-
-    @Override public void onConnectionStateChange(SignalingConnectionState newState) {}
-    @Override public void onMessage(JSONObject message) {}
-    @Override public void onChannelStateChange(SignalingChannelState newState) {}
-    @Override public void onError(Throwable error) {}
-
-    @Override public void onConnectionReconnect() {
-        handleSignalingConnectionReconnect();
     }
 }
