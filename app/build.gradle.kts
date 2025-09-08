@@ -66,8 +66,12 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":util"))
     implementation(project(":util-org-webrtc"))
-    implementation(libs.stream.webrtc.android)
-    implementation(libs.stream.webrtc.android.ui)
+    //implementation(libs.stream.webrtc.android)
+    implementation(libs.stream.webrtc.android.ui) {
+      exclude(group = "io.getstream", module = "stream-webrtc-android")
+    }
+    // use the livekit android webrtc library instead of the getstream library.
+    implementation(libs.webrtc.sdk)
     implementation(libs.core.ktx)
 
     testImplementation(libs.junit)

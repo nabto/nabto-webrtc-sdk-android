@@ -33,14 +33,14 @@ import org.webrtc.VideoTrack;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import io.getstream.webrtc.android.ui.VideoTextureViewRenderer;
+
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "MyApp";
-    final String productId = BuildConfig.PRODUCT_ID;
-    final String deviceId = BuildConfig.DEVICE_ID;
-    final String sharedSecret = BuildConfig.SHARED_SECRET;
+    final String productId = "wp-xcbsh4gw"; // "wp-ooraxfzr";
+    final String deviceId = "wd-kau39afoqxv3pqrx"; // "wd-jd9dhzgcttbe7tqe";
+    final String sharedSecret = "23542349849172470921340972134097447210934792347092147092134709214702194734";
 
     // Webrtc
     PeerConnectionFactory peerConnectionFactory = null;
@@ -69,6 +69,16 @@ public class MainActivity extends AppCompatActivity {
                 .setVideoEncoderFactory(encoderFactory)
                 .setVideoDecoderFactory(decoderFactory)
                 .createPeerConnectionFactory();
+
+        Log.d(TAG, "Supported video encoder codecs:");
+        for (var codec : encoderFactory.getSupportedCodecs()) {
+            Log.d(TAG, "  Encoder: " + codec.name );
+        }
+
+        Log.d(TAG, "Supported video decoder codecs:");
+        for (var codec : decoderFactory.getSupportedCodecs()) {
+            Log.d(TAG, "  Decoder: " + codec.name );
+        }
 
         videoView = findViewById(R.id.videoView);
         videoView.init(eglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
