@@ -59,6 +59,7 @@ public class JWTMessageSigner implements MessageSigner {
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toString());
         jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
+        jws.setHeader("typ", "JWT");
         if (this.keyId != null) {
             jws.setHeader("kid", keyId);
         }
