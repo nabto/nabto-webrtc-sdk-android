@@ -57,6 +57,9 @@ public class PerfectNegotiation {
     MessageTransport messageTransport;
     boolean polite;
 
+    // Stores the current remote offer SDP for use when fixing the answer
+    private String currentRemoteOfferSdp = null;
+
     /**
      * Construct a perfect negotiator for a PeerConnection.
      *
@@ -111,7 +114,6 @@ public class PerfectNegotiation {
 
     private CompletableFuture<Void> handleDescription(SessionDescription description) {
 
-
         synchronized (this) {
             boolean readyForOffer = !makingOffer &&
                     (pc.signalingState() == PeerConnection.SignalingState.STABLE || isSettingRemoteAnswerPending);
@@ -128,14 +130,36 @@ public class PerfectNegotiation {
             }
         }
 
-        return setRemoteDescription(description)
+        // Store the offer SDP for use when fixing the answer
+        if (description.type == SessionDescription.Type.OFFER) {
+            currentRemoteOfferSdp = description.description;
+        }
+
+        // For incoming offers, apply compatibility fixes and normalize ICE credentials
+        String sdpToUse = description.description;
+        if (description.type == SessionDescription.Type.OFFER) {
+            sdpToUse = SdpNormalizer.fixOfferSdp(sdpToUse);
+            sdpToUse = SdpNormalizer.normalizeIceCredentials(sdpToUse);
+        }
+
+        SessionDescription processedDescription = new SessionDescription(description.type, sdpToUse);
+
+        return setRemoteDescription(processedDescription)
                 .thenCompose(v -> {
                     isSettingRemoteAnswerPending = false;
                     if (description.type == SessionDescription.Type.OFFER) {
                         return setLocalDescription()
                                 .thenRun(() -> {
                                     SessionDescription localDesc = pc.getLocalDescription();
-                                    sendDescription(localDesc);
+                                    // Fix the answer SDP before sending
+                                    if (localDesc != null && currentRemoteOfferSdp != null) {
+                                        String fixedSdp = SdpNormalizer.fixAnswerSdp(localDesc.description, currentRemoteOfferSdp);
+                                        SessionDescription fixedDesc = new SessionDescription(localDesc.type, fixedSdp);
+                                        Log.d(TAG, "Sending fixed answer SDP");
+                                        sendDescription(fixedDesc);
+                                    } else {
+                                        sendDescription(localDesc);
+                                    }
                                 });
                     } else {
                         return CompletableFuture.completedFuture(null);
