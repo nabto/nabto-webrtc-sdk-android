@@ -32,6 +32,13 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
 
     @Override
     public void connect(String endpoint, Observer observer) {
+        // Clean up any existing connection before reconnecting
+        if (ws != null) {
+            ws.cancel();
+            ws = null;
+        }
+        isConnected = false;
+
         this.observer = observer;
         OkHttpClient client = new OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS).build();
         Request request = new Request.Builder().url(endpoint).build();
@@ -151,8 +158,10 @@ public class WebSocketConnectionImpl extends WebSocketListener implements WebSoc
     }
 
     public void close() {
+        isConnected = false;
         if (ws != null) {
             ws.close(1000, null);
+            ws = null;
         }
         scheduledExecutorService.shutdown();
     }

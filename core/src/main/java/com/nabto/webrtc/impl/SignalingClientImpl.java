@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,7 @@ public class SignalingClientImpl implements SignalingClient {
     private boolean isReconnecting = false;
     private int reconnectCounter = 0;
     private int openedWebSockets = 0;
+    private ScheduledFuture<?> reconnectTask = null;
     final private Set<Observer> observers = ConcurrentHashMap.newKeySet();
 
     private final WebSocketConnectionImpl webSocket = new WebSocketConnectionImpl();
@@ -140,6 +142,10 @@ public class SignalingClientImpl implements SignalingClient {
         if (connectionState != SignalingConnectionState.FAILED) {
             sendError(new SignalingError(SignalingError.CHANNEL_CLOSED, "The channel has been closed by the application."));
         }
+        if (reconnectTask != null) {
+            reconnectTask.cancel(false);
+            reconnectTask = null;
+        }
         setConnectionState(SignalingConnectionState.CLOSED);
         webSocket.close();
         setChannelState(SignalingChannelState.DISCONNECTED);
@@ -185,7 +191,10 @@ public class SignalingClientImpl implements SignalingClient {
         // TODO use jitter
         var reconnectWait = 1000 * (1 << reconnectCounter);
         reconnectCounter++;
-        scheduledExecutorService.schedule(this::reconnect, reconnectWait, TimeUnit.MILLISECONDS);
+        if (reconnectTask != null) {
+            reconnectTask.cancel(false);
+        }
+        reconnectTask = scheduledExecutorService.schedule(this::reconnect, reconnectWait, TimeUnit.MILLISECONDS);
     }
 
     private void openWebsocketConnection(String signalingUrl) {
@@ -226,6 +235,10 @@ public class SignalingClientImpl implements SignalingClient {
             @Override
             public void onOpen() {
                 reconnectCounter = 0;
+                if (reconnectTask != null) {
+                    reconnectTask.cancel(false);
+                    reconnectTask = null;
+                }
                 openedWebSockets++;
                 handleWebSocketConnect(openedWebSockets > 1);
                 setConnectionState(SignalingConnectionState.CONNECTED);

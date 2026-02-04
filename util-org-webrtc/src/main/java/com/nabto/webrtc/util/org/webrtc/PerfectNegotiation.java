@@ -70,6 +70,15 @@ public class PerfectNegotiation {
         this.messageTransport = messageTransport;
     }
 
+    /**
+     * Closes the perfect negotiation, releasing resources.
+     * Should be called before releasing the PerfectNegotiation instance.
+     */
+    public void close() {
+        this.pc = null;
+        this.messageTransport = null;
+    }
+
     public void onMessage(WebrtcSignalingMessage msg) {
         SignalingDescription description = msg.getDescription();
         SignalingCandidate candidate = msg.getCandidate();
