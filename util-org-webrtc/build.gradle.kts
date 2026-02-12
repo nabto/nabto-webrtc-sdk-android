@@ -56,7 +56,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":util"))
-    compileOnly(libs.stream.webrtc.android)
+    compileOnly(libs.webrtc.sdk)
     //implementation(libs.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

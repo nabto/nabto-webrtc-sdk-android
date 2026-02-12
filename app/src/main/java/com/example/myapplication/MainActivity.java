@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import io.getstream.webrtc.android.ui.VideoTextureViewRenderer;
+import org.webrtc.SurfaceViewRenderer;
 
 public class MainActivity extends AppCompatActivity {
     final String TAG = "MyApp";
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     PeerConnection peerConnection = null;
     PerfectNegotiation perfectNegotiation = null;
     EglBase eglBase = EglBase.create();
-    VideoTextureViewRenderer videoView;
+    SurfaceViewRenderer videoView;
 
     // Nabto signaling
     SignalingClient client;
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        videoView.resumeVideo();
+        videoView.disableFpsReduction();
     }
     @Override
     protected void onPause() {

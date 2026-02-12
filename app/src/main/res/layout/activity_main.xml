@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <io.getstream.webrtc.android.ui.VideoTextureViewRenderer
+    <org.webrtc.SurfaceViewRenderer
         android:id="@+id/videoView"
         android:layout_width="match_parent"
         android:layout_height="400dp"

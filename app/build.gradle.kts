@@ -66,8 +66,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":util"))
     implementation(project(":util-org-webrtc"))
-    implementation(libs.stream.webrtc.android)
-    implementation(libs.stream.webrtc.android.ui)
+    implementation(libs.webrtc.sdk)
     implementation(libs.core.ktx)
 
     testImplementation(libs.junit)
